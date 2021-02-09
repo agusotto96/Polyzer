@@ -52,7 +52,7 @@ public final class PolymerAnalyzer {
 
 	}
 
-	public static Optional<String> findLongestCommonSubsequence(List<Polymer> polymers) {
+	public static <Subpolymer extends Polymer> Optional<String> findLongestCommonSubsequence(List<Subpolymer> polymers) {
 
 		if (polymers == null || polymers.isEmpty()) {
 			throw new IllegalArgumentException("polymers cannot be null nor empty");

@@ -3,8 +3,10 @@ package main.model;
 import java.util.Set;
 
 import javax.persistence.Entity;
+import javax.persistence.Table;
 
 @Entity
+@Table(name = "PROTEIN")
 public final class Protein extends Polymer {
 
 	Protein() {

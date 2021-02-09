@@ -28,5 +28,7 @@ interface PolymerRepository<Polymer> extends JpaRepository<Polymer, Long> {
 	void deleteByIdInOrTagIn(List<Long> ids, List<String> tags);
 
 	Page<Polymer> findByIdInOrTagIn(List<Long> ids, List<String> tags, Pageable pageable);
+	
+	List<Polymer> findByIdInOrTagIn(List<Long> ids, List<String> tags);
 
 }

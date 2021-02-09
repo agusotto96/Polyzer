@@ -22,29 +22,29 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import main.model.DNA;
+import main.model.RNA;
 import main.model.PolymerAnalyzer;
-import main.repository.DNARepository;
+import main.repository.RNARepository;
 
 @RestController
-@RequestMapping("dna")
-public class DNAController {
+@RequestMapping("rna")
+public class RNAController {
 
 	@Autowired
-	DNARepository DNARepository;
+	RNARepository RNARepository;
 
 	@PostMapping()
-	public List<DNA> create(@RequestBody List<Map<String, String>> sequences) {
+	public List<RNA> create(@RequestBody List<Map<String, String>> sequences) {
 
 		try {
 
-			List<DNA> DNAs = new ArrayList<>(sequences.size());
+			List<RNA> RNAs = new ArrayList<>(sequences.size());
 
 			for (Map<String, String> sequence : sequences) {
-				DNAs.add(new DNA(sequence.get("tag"), sequence.get("sequence")));
+				RNAs.add(new RNA(sequence.get("tag"), sequence.get("sequence")));
 			}
 
-			return DNARepository.saveAll(DNAs);
+			return RNARepository.saveAll(RNAs);
 
 		} catch (IllegalArgumentException exception) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exception.getMessage());
@@ -58,20 +58,20 @@ public class DNAController {
 			@RequestParam(required = false) List<Long> ids, 
 			@RequestParam(required = false) List<String> tags) {
 
-		Page<DNA> DNAs;
+		Page<RNA> RNAs;
 
 		if (ids == null && tags == null) {
-			DNAs = DNARepository.findAll(PageRequest.of(page, 10));
+			RNAs = RNARepository.findAll(PageRequest.of(page, 10));
 		} else {
 			ids = ids == null ? new ArrayList<>() : ids;
 			tags = tags == null ? new ArrayList<>() : tags;
-			DNAs = DNARepository.findByIdInOrTagIn(ids, tags, PageRequest.of(page, 10));
+			RNAs = RNARepository.findByIdInOrTagIn(ids, tags, PageRequest.of(page, 10));
 		}
 
 		Map<Object, Object> result = new HashMap<>(3);
-		result.put("totalPages", DNAs.getTotalPages());
-		result.put("page", DNAs.getNumber());
-		result.put("DNAs", DNAs.getContent());
+		result.put("totalPages", RNAs.getTotalPages());
+		result.put("page", RNAs.getNumber());
+		result.put("RNAs", RNAs.getContent());
 
 		return result;
 
@@ -80,7 +80,7 @@ public class DNAController {
 	@GetMapping("tags")
 	public Map<Object, Object> read(@RequestParam(defaultValue = "0") int page) {
 
-		Page<String> tags = DNARepository.findAllTags(PageRequest.of(page, 10, Sort.by("tag")));
+		Page<String> tags = RNARepository.findAllTags(PageRequest.of(page, 10, Sort.by("tag")));
 
 		Map<Object, Object> result = new HashMap<>(3);
 		result.put("totalPages", tags.getTotalPages());
@@ -96,7 +96,7 @@ public class DNAController {
 			@PathVariable String tag, 
 			@RequestParam(defaultValue = "0") int page) {
 
-		Page<Long> ids = DNARepository.findIdsByTag(tag, PageRequest.of(page, 10, Sort.by("id")));
+		Page<Long> ids = RNARepository.findIdsByTag(tag, PageRequest.of(page, 10, Sort.by("id")));
 
 		if (ids.getContent().isEmpty()) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
@@ -112,9 +112,9 @@ public class DNAController {
 	}
 
 	@GetMapping("{id}")
-	public DNA read(@PathVariable long id) {
+	public RNA read(@PathVariable long id) {
 
-		return DNARepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+		return RNARepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
 	}
 
@@ -124,11 +124,11 @@ public class DNAController {
 			@RequestParam(required = false) List<String> tags) {
 
 		if (ids == null && tags == null) {
-			DNARepository.deleteAll();
+			RNARepository.deleteAll();
 		} else {
 			ids = ids == null ? new ArrayList<>() : ids;
 			tags = tags == null ? new ArrayList<>() : tags;
-			DNARepository.deleteByIdInOrTagIn(ids, tags);
+			RNARepository.deleteByIdInOrTagIn(ids, tags);
 		}
 
 	}
@@ -136,7 +136,7 @@ public class DNAController {
 	@GetMapping("{id}/monomer-count")
 	public Map<Character, Integer> countMonomers(@PathVariable long id) {
 
-		return DNARepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND)).countMonomers();
+		return RNARepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND)).countMonomers();
 
 	}
 
@@ -147,7 +147,7 @@ public class DNAController {
 			@RequestParam int times, 
 			@RequestParam int range) {
 
-		return DNARepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND)).findClumpFormingPatterns(size, times, range);
+		return RNARepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND)).findClumpFormingPatterns(size, times, range);
 
 	}
 
@@ -156,13 +156,13 @@ public class DNAController {
 			@RequestParam(defaultValue = "") List<Long> ids, 
 			@RequestParam(defaultValue = "") List<String> tags) {
 
-		List<DNA> DNAs = DNARepository.findByIdInOrTagIn(ids, tags);
+		List<RNA> RNAs = RNARepository.findByIdInOrTagIn(ids, tags);
 
-		if (DNAs.size() != 2) {
+		if (RNAs.size() != 2) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
 		}
 
-		return PolymerAnalyzer.calculateHammingDistance(DNAs.get(0), DNAs.get(1));
+		return PolymerAnalyzer.calculateHammingDistance(RNAs.get(0), RNAs.get(1));
 
 	}
 
@@ -171,8 +171,8 @@ public class DNAController {
 			@RequestParam(name = "sequence-id") long sequenceId, 
 			@RequestParam(name = "subsequence-id") long subsequenceId) {
 
-		DNA sequence = DNARepository.findById(sequenceId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-		DNA subsequence = DNARepository.findById(subsequenceId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+		RNA sequence = RNARepository.findById(sequenceId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+		RNA subsequence = RNARepository.findById(subsequenceId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
 		return PolymerAnalyzer.findSubsequenceLocations(sequence, subsequence);
 
@@ -183,10 +183,10 @@ public class DNAController {
 			@RequestParam(defaultValue = "") List<Long> ids, 
 			@RequestParam(defaultValue = "") List<String> tags) {
 
-		List<DNA> DNAs = DNARepository.findByIdInOrTagIn(ids, tags);
+		List<RNA> RNAs = RNARepository.findByIdInOrTagIn(ids, tags);
 		
 		try {
-			return PolymerAnalyzer.findLongestCommonSubsequence(DNAs);
+			return PolymerAnalyzer.findLongestCommonSubsequence(RNAs);
 		} catch (IllegalArgumentException exception) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exception.getMessage());
 		}	
@@ -196,7 +196,7 @@ public class DNAController {
 	@GetMapping("{id}/reverse-complement")
 	public Optional<String> calculateReverseComplement(@PathVariable long id) {
 
-		return Optional.of(DNARepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND)).calculateReverseComplement());
+		return Optional.of(RNARepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND)).calculateReverseComplement());
 
 	}
 
