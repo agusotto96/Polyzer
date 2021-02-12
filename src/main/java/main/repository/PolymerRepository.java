@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 @NoRepositoryBean
-interface PolymerRepository<Polymer> extends JpaRepository<Polymer, Long> {
+public interface PolymerRepository<Polymer> extends JpaRepository<Polymer, Long> {
 
 	Page<Polymer> findByTagIn(List<String> tags, Pageable pageable);
 
@@ -28,7 +28,7 @@ interface PolymerRepository<Polymer> extends JpaRepository<Polymer, Long> {
 	void deleteByIdInOrTagIn(List<Long> ids, List<String> tags);
 
 	Page<Polymer> findByIdInOrTagIn(List<Long> ids, List<String> tags, Pageable pageable);
-	
+
 	List<Polymer> findByIdInOrTagIn(List<Long> ids, List<String> tags);
 
 }

@@ -10,6 +10,7 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -23,28 +24,57 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import main.model.DNA;
+import main.model.Polymer;
 import main.model.PolymerAnalyzer;
 import main.repository.DNARepository;
+import main.repository.PolymerRepository;
+import main.repository.ProteinRepository;
+import main.repository.RNARepository;
 
 @RestController
-@RequestMapping("dna")
+@RequestMapping("{type}")
 public class DNAController {
 
 	@Autowired
 	DNARepository DNARepository;
 
-	@PostMapping()
-	public List<DNA> create(@RequestBody List<Map<String, String>> sequences) {
+	@Autowired
+	RNARepository RNARepository;
+
+	@Autowired
+	ProteinRepository ProteinRepository;
+	
+	private static final String DNA = "dna";
+	private static final String RNA = "rna";
+	private static final String PROTEINS = "proteins";
+
+	@PostMapping
+	public List<Polymer> create(
+			@PathVariable String type, 
+			@RequestBody List<Map<String, String>> sequences) {
+
+		List<Polymer> polymers = new ArrayList<>(sequences.size());
 
 		try {
 
-			List<DNA> DNAs = new ArrayList<>(sequences.size());
+			switch (type) {
+			case DNA:
+				polymers.addAll(DNARepository.saveAll(PolymerMapper.mapDNAs(sequences)));
+				break;
 
-			for (Map<String, String> sequence : sequences) {
-				DNAs.add(new DNA(sequence.get("tag"), sequence.get("sequence")));
+			case RNA:
+				polymers.addAll(RNARepository.saveAll(PolymerMapper.mapRNAs(sequences)));
+				break;
+
+			case PROTEINS:
+				polymers.addAll(ProteinRepository.saveAll(PolymerMapper.mapProteins(sequences)));
+				break;
+
+			default:
+				throw new ResponseStatusException(HttpStatus.NOT_FOUND);
 			}
 
-			return DNARepository.saveAll(DNAs);
+			return polymers;
 
 		} catch (IllegalArgumentException exception) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exception.getMessage());
@@ -53,46 +83,64 @@ public class DNAController {
 	}
 
 	@GetMapping()
-	public Map<Object, Object> read(
+	public Map<String, Object> read(
+			@PathVariable String type, 
 			@RequestParam(defaultValue = "0") int page, 
 			@RequestParam(required = false) List<Long> ids, 
 			@RequestParam(required = false) List<String> tags) {
 
-		Page<DNA> DNAs;
+		Pageable pageable = PageRequest.of(page, 10);
 
-		if (ids == null && tags == null) {
-			DNAs = DNARepository.findAll(PageRequest.of(page, 10));
-		} else {
-			ids = ids == null ? new ArrayList<>() : ids;
-			tags = tags == null ? new ArrayList<>() : tags;
-			DNAs = DNARepository.findByIdInOrTagIn(ids, tags, PageRequest.of(page, 10));
+		switch (type) {
+		case DNA:
+			return formatPages(findByIdOrTag(page, pageable, ids, tags, DNARepository));
+
+		case RNA:
+			return formatPages(findByIdOrTag(page, pageable, ids, tags, RNARepository));
+
+		case PROTEINS:
+			return formatPages(findByIdOrTag(page, pageable, ids, tags, ProteinRepository));
+
+		default:
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
 		}
-
-		Map<Object, Object> result = new HashMap<>(3);
-		result.put("totalPages", DNAs.getTotalPages());
-		result.put("page", DNAs.getNumber());
-		result.put("DNAs", DNAs.getContent());
-
-		return result;
 
 	}
 
+
+
 	@GetMapping("tags")
-	public Map<Object, Object> read(@RequestParam(defaultValue = "0") int page) {
+	public Map<String, Object> read(
+			@PathVariable String type, 
+			@RequestParam(defaultValue = "0") int page) {
 
-		Page<String> tags = DNARepository.findAllTags(PageRequest.of(page, 10, Sort.by("tag")));
+		Page<String> tags;
+		Pageable pageable = PageRequest.of(page, 10, Sort.by("tag"));
 
-		Map<Object, Object> result = new HashMap<>(3);
-		result.put("totalPages", tags.getTotalPages());
-		result.put("page", tags.getNumber());
-		result.put("tags", tags.getContent());
+		switch (type) {
+		case DNA:
+			tags = DNARepository.findAllTags(pageable);
+			break;
 
-		return result;
+		case RNA:
+			tags = RNARepository.findAllTags(pageable);
+			break;
+
+		case PROTEINS:
+			tags = ProteinRepository.findAllTags(pageable);
+			break;
+
+		default:
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+		}
+
+		return formatPages(tags);
 
 	}
 
 	@GetMapping("{tag}/ids")
-	public Map<Object, Object> read(
+	public Map<String, Object> read(
+			@PathVariable String type, 
 			@PathVariable String tag, 
 			@RequestParam(defaultValue = "0") int page) {
 
@@ -101,13 +149,10 @@ public class DNAController {
 		if (ids.getContent().isEmpty()) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
 		}
+		
+		
 
-		Map<Object, Object> result = new HashMap<>(3);
-		result.put("totalPages", ids.getTotalPages());
-		result.put("page", ids.getNumber());
-		result.put("ids", ids.getContent());
-
-		return result;
+		return formatPages(ids);
 
 	}
 
@@ -177,19 +222,19 @@ public class DNAController {
 		return PolymerAnalyzer.findSubsequenceLocations(sequence, subsequence);
 
 	}
-	
+
 	@GetMapping("longest-common-subsequence")
 	public Optional<String> findLongestCommonSubsequence(
 			@RequestParam(defaultValue = "") List<Long> ids, 
 			@RequestParam(defaultValue = "") List<String> tags) {
 
 		List<DNA> DNAs = DNARepository.findByIdInOrTagIn(ids, tags);
-		
+
 		try {
 			return PolymerAnalyzer.findLongestCommonSubsequence(DNAs);
 		} catch (IllegalArgumentException exception) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exception.getMessage());
-		}	
+		}
 
 	}
 
@@ -197,6 +242,33 @@ public class DNAController {
 	public Optional<String> calculateReverseComplement(@PathVariable long id) {
 
 		return Optional.of(DNARepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND)).calculateReverseComplement());
+
+	}
+
+	private <Type extends Object> Map<String, Object> formatPages(Page<Type> pages) {
+
+		Map<String, Object> result = new HashMap<>(3);
+		result.put("totalPages", pages.getTotalPages());
+		result.put("page", pages.getNumber());
+		result.put("tags", pages.getContent());
+
+		return result;
+
+	}
+
+	private <Type extends Polymer> Page<Type> findByIdOrTag(int page, Pageable pageable, List<Long> ids, List<String> tags, PolymerRepository<Type> repository) {
+
+		Page<Type> polymers;
+
+		if (ids == null && tags == null) {
+			polymers = repository.findAll(pageable);
+		} else {
+			ids = ids == null ? new ArrayList<>() : ids;
+			tags = tags == null ? new ArrayList<>() : tags;
+			polymers = repository.findByIdInOrTagIn(ids, tags, pageable);
+		}
+
+		return polymers;
 
 	}
 
