@@ -4,17 +4,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import javax.persistence.Entity;
-
-@Entity
 public final class DNA extends NucleicAcid {
 
-	DNA() {
-		super();
-	}
-
-	public DNA(String tag, String sequence) {
-		super(tag, sequence);
+	public DNA(String sequence) {
+		super(sequence);
 	}
 
 	@Override

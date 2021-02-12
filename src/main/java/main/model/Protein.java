@@ -2,19 +2,10 @@ package main.model;
 
 import java.util.Set;
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
-
-@Entity
-@Table(name = "PROTEIN")
 public final class Protein extends Polymer {
 
-	Protein() {
-		super();
-	}
-
-	public Protein(String tag, String sequence) {
-		super(tag, sequence);
+	public Protein(String sequence) {
+		super(sequence);
 	}
 
 	@Override

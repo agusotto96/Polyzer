@@ -4,17 +4,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import javax.persistence.Entity;
-
-@Entity
 public final class RNA extends NucleicAcid {
 
-	RNA() {
-		super();
-	}
-
-	public RNA(String tag, String sequence) {
-		super(tag, sequence);
+	public RNA(String sequence) {
+		super(sequence);
 	}
 
 	@Override

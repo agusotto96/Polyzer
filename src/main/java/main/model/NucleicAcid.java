@@ -4,12 +4,8 @@ import java.util.Map;
 
 public abstract class NucleicAcid extends Polymer {
 
-	NucleicAcid() {
-		super();
-	}
-
-	NucleicAcid(String tag, String sequence) {
-		super(tag, sequence);
+	NucleicAcid(String sequence) {
+		super(sequence);
 	}
 
 	public String calculateReverseComplement() {

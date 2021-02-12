@@ -6,27 +6,12 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.MappedSuperclass;
-
-@MappedSuperclass
 public abstract class Polymer {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	Long id;
-	String tag;
 	String sequence;
 
-	Polymer() {
+	public Polymer(String sequence) {
 		super();
-	}
-
-	public Polymer(String tag, String sequence) {
-		super();
-		this.tag = tag;
 		this.sequence = sequence;
 		this.validatePolymer();
 	}
@@ -38,14 +23,6 @@ public abstract class Polymer {
 	public void setSequence(String sequence) {
 		this.sequence = sequence;
 		this.validatePolymer();
-	}
-
-	public Long getId() {
-		return id;
-	}
-
-	public String getTag() {
-		return tag;
 	}
 
 	public Map<Character, Integer> countMonomers() {
@@ -93,10 +70,6 @@ public abstract class Polymer {
 
 		if (this.sequence == null || this.sequence.isBlank()) {
 			throw new IllegalArgumentException("sequence cannot be empty");
-		}
-
-		if (this.tag == null || this.tag.isBlank()) {
-			throw new IllegalArgumentException("tag cannot be empty");
 		}
 
 		for (char monomer : this.sequence.toCharArray()) {
