@@ -28,7 +28,7 @@ public interface SequenceRepository extends JpaRepository<Sequence, Long> {
 	void updateTag(String type, String tag, String newTag);
 
 	@Modifying
-	@Query(value = "update Sequence sequence set sequence.sequence = newSequence where sequence.type = :type and sequence.tag = :tag and sequence.id = :id")
+	@Query(value = "update Sequence sequence set sequence.value = :newSequence where sequence.type = :type and sequence.tag = :tag and sequence.id = :id")
 	void updateSequence(String type, String tag, long id, String newSequence);
 
 	@Modifying
