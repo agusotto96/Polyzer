@@ -91,7 +91,7 @@ public abstract class Polymer {
 
 	}
 
-	public static List<Integer> findSubsequenceLocations(Polymer polymer, Polymer subpolymer) {
+	public static List<Integer> calculateSubsequenceLocations(Polymer polymer, Polymer subpolymer) {
 
 		if (polymer == null || subpolymer == null) {
 			throw new IllegalArgumentException("polymers cannot be empty");
@@ -115,7 +115,7 @@ public abstract class Polymer {
 
 	}
 
-	public static Optional<String> findLongestCommonSubsequence(List<Polymer> polymers) {
+	public static Optional<String> calculateLongestCommonSubsequence(List<Polymer> polymers) {
 
 		if (polymers == null || polymers.isEmpty()) {
 			throw new IllegalArgumentException("polymers cannot be null nor empty");

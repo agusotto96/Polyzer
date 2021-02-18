@@ -1,5 +1,6 @@
 package main.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -22,6 +23,9 @@ public interface SequenceRepository extends JpaRepository<Sequence, Long> {
 
 	@Query(value = "select sequence.value from Sequence sequence where sequence.type = :type and sequence.tag = :tag and sequence.id = :id")
 	Optional<String> findSequence(String type, String tag, long id);
+
+	@Query(value = "select sequence.value from Sequence sequence where sequence.type = :type and sequence.tag in :tag or sequence.id in :id")
+	List<String> findSequences(String type, List<String> tags, List<Long> ids);
 
 	@Modifying
 	@Query(value = "update Sequence sequence set sequence.tag = newTag where sequence.tag = tag")

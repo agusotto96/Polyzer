@@ -39,6 +39,15 @@ public class PolymerService {
 		return sequenceRepository.findSequence(type, tag, id).map(sequence -> getPolymer(type, sequence));
 	}
 
+	public List<Polymer> findPolymers(String type, List<String> tags, List<Long> ids) {
+
+		List<String> sequences = sequenceRepository.findSequences(type, tags, ids);
+		List<Polymer> polymers = sequences.stream().map(sequence -> getPolymer(type, sequence)).collect(Collectors.toList());
+
+		return polymers;
+
+	}
+
 	public Optional<NucleicAcid> findNucleicAcid(String type, String tag, long id) {
 		return sequenceRepository.findSequence(type, tag, id).map(sequence -> getNucleicAcid(type, sequence));
 	}

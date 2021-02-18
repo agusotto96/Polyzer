@@ -42,9 +42,9 @@ public class PolymerController {
 	}
 
 	@GetMapping(POLYMER)
-	public Map<String, Object> findTags(@PathVariable String type, @RequestParam int page) {
+	public Map<String, Object> findTags(@PathVariable String type, @RequestParam int page, @RequestParam int size) {
 
-		Pageable pageable = PageRequest.of(page, 10, Sort.by("tag"));
+		Pageable pageable = PageRequest.of(page, size, Sort.by("tag"));
 		Page<String> tags = polymerService.findTags(type, pageable);
 
 		return formatPages("tags", tags);
@@ -52,9 +52,9 @@ public class PolymerController {
 	}
 
 	@GetMapping(POLYMER + "/{tag}")
-	public Map<String, Object> findIds(@PathVariable String type, @PathVariable String tag, @RequestParam int page) {
+	public Map<String, Object> findIds(@PathVariable String type, @PathVariable String tag, @RequestParam int page, @RequestParam int size) {
 
-		Pageable pageable = PageRequest.of(page, 10, Sort.by("id"));
+		Pageable pageable = PageRequest.of(page, size, Sort.by("id"));
 		Page<Long> ids = polymerService.findIds(type, tag, pageable);
 
 		if (ids.getContent().isEmpty()) {
@@ -76,7 +76,7 @@ public class PolymerController {
 	}
 
 	@GetMapping(POLYMER + "/{tag}/{id}/monomer-count")
-	public Map<Character, Integer> calculateMonomerCount(@PathVariable String type, @PathVariable String tag, @PathVariable long id) {
+	public Map<Character, Integer> getMonomerCount(@PathVariable String type, @PathVariable String tag, @PathVariable long id) {
 
 		Polymer polymer = polymerService.findPolymer(type, tag, id)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
@@ -86,7 +86,7 @@ public class PolymerController {
 	}
 
 	@GetMapping(POLYMER + "/{tag}/{id}/clump-forming-patterns")
-	public Set<String> calculateClumpFormingPatterns(
+	public Set<String> getClumpFormingPatterns(
 			@PathVariable String type, 	@PathVariable String tag, 	@PathVariable long id, 
 			@RequestParam int size, 	@RequestParam int times, 	@RequestParam int range) {
 
@@ -98,7 +98,7 @@ public class PolymerController {
 	}
 
 	@GetMapping(NUCLEIC_ACID + "/{tag}/{id}/reverse-complement")
-	public String calculateReverseComplement(@PathVariable String type, @PathVariable String tag, @PathVariable long id) {
+	public String getReverseComplement(@PathVariable String type, @PathVariable String tag, @PathVariable long id) {
 
 		NucleicAcid nucleicAcid = polymerService.findNucleicAcid(type, tag, id)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
