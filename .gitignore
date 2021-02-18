@@ -6,7 +6,7 @@ target/
 !**/src/test/**/target/
 
 ### Mine ###
-.properties
+application.properties
 
 ### STS ###
 .apt_generated
