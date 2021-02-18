@@ -66,7 +66,7 @@ public class PolymerController {
 	}
 
 	@GetMapping(POLYMER + "/{tag}/{id}")
-	public String findSequence(@PathVariable String type, @PathVariable String tag, @PathVariable long id) {
+	public String findPolymer(@PathVariable String type, @PathVariable String tag, @PathVariable long id) {
 
 		Polymer polymer = polymerService.findPolymer(type, tag, id)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
@@ -76,24 +76,24 @@ public class PolymerController {
 	}
 
 	@GetMapping(POLYMER + "/{tag}/{id}/monomer-count")
-	public Map<Character, Integer> countMonomers(@PathVariable String type, @PathVariable String tag, @PathVariable long id) {
+	public Map<Character, Integer> calculateMonomerCount(@PathVariable String type, @PathVariable String tag, @PathVariable long id) {
 
 		Polymer polymer = polymerService.findPolymer(type, tag, id)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-		return polymer.countMonomers();
+		return polymer.getMonomerCount();
 
 	}
 
 	@GetMapping(POLYMER + "/{tag}/{id}/clump-forming-patterns")
-	public Set<String> findClumpFormingPatterns(
+	public Set<String> calculateClumpFormingPatterns(
 			@PathVariable String type, 	@PathVariable String tag, 	@PathVariable long id, 
 			@RequestParam int size, 	@RequestParam int times, 	@RequestParam int range) {
 
 		Polymer polymer = polymerService.findPolymer(type, tag, id)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-		return polymer.findClumpFormingPatterns(size, times, range);
+		return polymer.getClumpFormingPatterns(size, times, range);
 
 	}
 
@@ -103,7 +103,7 @@ public class PolymerController {
 		NucleicAcid nucleicAcid = polymerService.findNucleicAcid(type, tag, id)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-		return nucleicAcid.calculateReverseComplement();
+		return nucleicAcid.getReverseComplement();
 
 	}
 
@@ -145,8 +145,8 @@ public class PolymerController {
 	}
 
 	@DeleteMapping(POLYMER + "/{tag}/{id}")
-	public void deletePolymers(@PathVariable String type, @PathVariable String tag, @PathVariable long id) {
-		polymerService.deletePolymers(type, tag, id);
+	public void deletePolymer(@PathVariable String type, @PathVariable String tag, @PathVariable long id) {
+		polymerService.deletePolymer(type, tag, id);
 	}
 
 	private <T extends Object> Map<String, Object> formatPages(String content, Page<T> pages) {

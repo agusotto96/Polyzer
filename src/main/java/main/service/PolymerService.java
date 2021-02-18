@@ -68,8 +68,8 @@ public class PolymerService {
 		sequenceRepository.deleteSequences(type, tag);
 	}
 
-	public void deletePolymers(String type, String tag, long id) {
-		sequenceRepository.deleteSequences(type, tag, id);
+	public void deletePolymer(String type, String tag, long id) {
+		sequenceRepository.deleteSequence(type, tag, id);
 	}
 
 	private Polymer getPolymer(String type, String sequence) {

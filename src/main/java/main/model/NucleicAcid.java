@@ -8,7 +8,7 @@ public abstract class NucleicAcid extends Polymer {
 		super(sequence);
 	}
 
-	public String calculateReverseComplement() {
+	public String getReverseComplement() {
 
 		StringBuilder builder = new StringBuilder(this.sequence.length());
 

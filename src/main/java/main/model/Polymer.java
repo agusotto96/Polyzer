@@ -28,7 +28,7 @@ public abstract class Polymer {
 		this.validatePolymer();
 	}
 
-	public Map<Character, Integer> countMonomers() {
+	public Map<Character, Integer> getMonomerCount() {
 
 		Map<Character, Integer> monomerCount = new HashMap<>();
 
@@ -40,7 +40,7 @@ public abstract class Polymer {
 
 	}
 
-	public Set<String> findClumpFormingPatterns(int patternSize, int patternTimes, int clumpSize) {
+	public Set<String> getClumpFormingPatterns(int patternSize, int patternTimes, int clumpSize) {
 
 		Map<String, LinkedList<Integer>> patternsLocations = new HashMap<String, LinkedList<Integer>>();
 		Set<String> patterns = new HashSet<String>();

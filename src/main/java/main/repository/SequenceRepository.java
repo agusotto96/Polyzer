@@ -41,6 +41,6 @@ public interface SequenceRepository extends JpaRepository<Sequence, Long> {
 
 	@Modifying
 	@Query(value = "delete from Sequence sequence where sequence.type = :type and sequence.tag = :tag and sequence.id = :id")
-	void deleteSequences(String type, String tag, long id);
+	void deleteSequence(String type, String tag, long id);
 
 }
