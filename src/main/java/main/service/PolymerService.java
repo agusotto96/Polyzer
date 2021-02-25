@@ -9,13 +9,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import main.model.DNA;
-import main.model.NucleicAcid;
-import main.model.Polymer;
-import main.model.Protein;
-import main.model.RNA;
-import main.repository.Sequence;
-import main.repository.SequenceRepository;
+import main.model.entity.DNA;
+import main.model.entity.NucleicAcid;
+import main.model.entity.Polymer;
+import main.model.entity.Protein;
+import main.model.entity.RNA;
+import main.persistance.Sequence;
+import main.persistance.SequenceRepository;
 
 @Service
 public class PolymerService {

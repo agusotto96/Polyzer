@@ -1,4 +1,4 @@
-package main.controller;
+package main.presentation;
 
 import java.util.List;
 import java.util.Optional;
@@ -11,7 +11,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import main.model.Polymer;
+import main.model.entity.Polymer;
+import main.model.service.PolymerAnalyzer;
 import main.service.PolymerService;
 
 @RestController
@@ -22,7 +23,10 @@ public class AnalysisController {
 	PolymerService polymerService;
 
 	@GetMapping("hamming-distance")
-	public int calculateHammingDistance(@RequestParam String type, @RequestParam List<String> tags, @RequestParam List<Long> ids) {
+	public int calculateHammingDistance(
+			@RequestParam String type, 
+			@RequestParam(defaultValue = "") List<String> tags, 
+			@RequestParam(defaultValue = "") List<Long> ids) {
 
 		List<Polymer> polymers = polymerService.findPolymers(type, tags, ids);
 
@@ -30,7 +34,7 @@ public class AnalysisController {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "two and only two polymers must be selected");
 		}
 
-		return Polymer.calculateHammingDistance(polymers.get(0), polymers.get(1));
+		return PolymerAnalyzer.calculateHammingDistance(polymers.get(0), polymers.get(1));
 
 	}
 
@@ -46,12 +50,15 @@ public class AnalysisController {
 		Polymer subpolymer = polymerService.findPolymer(type, subpolymerTag, subpolymerId)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-		return Polymer.calculateSubsequenceLocations(polymer, subpolymer);
+		return PolymerAnalyzer.calculateSubsequenceLocations(polymer, subpolymer);
 
 	}
 
 	@GetMapping("longest-common-subsequence")
-	public Optional<String> calculateLongestCommonSubsequence(@RequestParam String type, @RequestParam List<String> tags, @RequestParam List<Long> ids) {
+	public Optional<String> calculateLongestCommonSubsequence(
+			@RequestParam String type, 
+			@RequestParam(defaultValue = "") List<String> tags, 
+			@RequestParam(defaultValue = "") List<Long> ids) {
 
 		List<Polymer> polymers = polymerService.findPolymers(type, tags, ids);
 
@@ -59,7 +66,7 @@ public class AnalysisController {
 			throw new IllegalArgumentException("at least two polymers must be selected");
 		}
 
-		return Polymer.calculateLongestCommonSubsequence(polymers);
+		return PolymerAnalyzer.calculateLongestCommonSubsequence(polymers);
 
 	}
 

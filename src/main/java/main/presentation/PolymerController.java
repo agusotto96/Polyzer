@@ -1,4 +1,4 @@
-package main.controller;
+package main.presentation;
 
 import java.util.HashMap;
 import java.util.List;
@@ -22,8 +22,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import main.model.NucleicAcid;
-import main.model.Polymer;
+import main.model.entity.NucleicAcid;
+import main.model.entity.Polymer;
 import main.service.PolymerService;
 
 @RestController
@@ -149,7 +149,7 @@ public class PolymerController {
 		polymerService.deletePolymer(type, tag, id);
 	}
 
-	private <T extends Object> Map<String, Object> formatPages(String content, Page<T> pages) {
+	private Map<String, Object> formatPages(String content, Page<?> pages) {
 
 		Map<String, Object> result = new HashMap<>(3);
 

@@ -1,4 +1,4 @@
-package main.model;
+package main.model.entity;
 
 import java.util.Map;
 
