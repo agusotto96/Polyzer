@@ -26,7 +26,7 @@ import org.springframework.web.server.ResponseStatusException;
 import app.model.NucleicAcid;
 import app.model.Polymer;
 import app.service.PolymerFactory;
-import app.service.PolymerHandler;
+import app.service.PolymerDataHandler;
 
 @RestController
 @RequestMapping("polymers")
@@ -36,7 +36,7 @@ class PolymerController {
 	private static final String NUCLEIC_ACID = "{type:" + PolymerFactory.DNA + "|" + PolymerFactory.RNA + "}";
 
 	@Autowired
-	private PolymerHandler polymerHandler;
+	private PolymerDataHandler polymerHandler;
 
 	@GetMapping()
 	Set<String> findTypes() {

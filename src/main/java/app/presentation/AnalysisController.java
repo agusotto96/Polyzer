@@ -13,14 +13,14 @@ import org.springframework.web.server.ResponseStatusException;
 
 import app.model.Polymer;
 import app.service.PolymerAnalyzer;
-import app.service.PolymerHandler;
+import app.service.PolymerDataHandler;
 
 @RestController
 @RequestMapping("analysis")
 class AnalysisController {
 
 	@Autowired
-	PolymerHandler polymerHandler;
+	PolymerDataHandler polymerHandler;
 	
 	@Autowired
 	PolymerAnalyzer polymerAnalyzer;

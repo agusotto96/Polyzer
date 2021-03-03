@@ -15,7 +15,7 @@ import app.model.NucleicAcid;
 import app.model.Polymer;
 
 @Service
-public class PolymerHandler {
+public class PolymerDataHandler {
 
 	@Autowired
 	private SequenceRepository sequenceRepository;
