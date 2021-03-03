@@ -23,8 +23,8 @@ public class PolymerAnalyzer {
 
 		int hammingDistance = 0;
 
-		for (int index = 0; index < firstPolymer.getSequence().length(); index++) {
-			if (firstPolymer.getSequence().charAt(index) != secondPolymer.getSequence().charAt(index)) {
+		for (int i = 0; i < firstPolymer.getSequence().length(); i++) {
+			if (firstPolymer.getSequence().charAt(i) != secondPolymer.getSequence().charAt(i)) {
 				hammingDistance++;
 			}
 		}
@@ -45,10 +45,10 @@ public class PolymerAnalyzer {
 
 		List<Integer> locations = new ArrayList<>(polymer.getSequence().length() - subpolymer.getSequence().length());
 
-		for (int index = 0; index <= polymer.getSequence().length() - subpolymer.getSequence().length(); index++) {
+		for (int i = 0; i <= polymer.getSequence().length() - subpolymer.getSequence().length(); i++) {
 
-			if (polymer.getSequence().substring(index, index + subpolymer.getSequence().length()).equals(subpolymer.getSequence())) {
-				locations.add(index);
+			if (polymer.getSequence().substring(i, i + subpolymer.getSequence().length()).equals(subpolymer.getSequence())) {
+				locations.add(i);
 			}
 
 		}

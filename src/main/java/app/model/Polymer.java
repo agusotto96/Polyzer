@@ -42,19 +42,19 @@ public abstract class Polymer {
 		Map<String, LinkedList<Integer>> patternsLocations = new HashMap<String, LinkedList<Integer>>();
 		Set<String> patterns = new HashSet<String>();
 
-		for (int index = 0; index <= this.sequence.length() - patternSize; index++) {
+		for (int i = 0; i <= this.sequence.length() - patternSize; i++) {
 
-			String pattern = this.sequence.substring(index, index + patternSize);
+			String pattern = this.sequence.substring(i, i + patternSize);
 
 			if (patternsLocations.get(pattern) == null) {
 				patternsLocations.put(pattern, new LinkedList<Integer>());
 			}
 
-			while (!patternsLocations.get(pattern).isEmpty() && index + patternSize - patternsLocations.get(pattern).peek() > clumpSize) {
+			while (!patternsLocations.get(pattern).isEmpty() && i + patternSize - patternsLocations.get(pattern).peek() > clumpSize) {
 				patternsLocations.get(pattern).pop();
 			}
 
-			patternsLocations.get(pattern).add(index);
+			patternsLocations.get(pattern).add(i);
 
 			if (patternsLocations.get(pattern).size() == patternTimes) {
 				patterns.add(pattern);

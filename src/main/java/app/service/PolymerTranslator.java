@@ -95,8 +95,8 @@ public class PolymerTranslator {
 	public static Protein translateRNA(RNA rna) {
 		String nucleotides = rna.getSequence();
 		StringBuilder aminoacids = new StringBuilder();
-		for (int index = 0; index < nucleotides.length() - 2; index += 3) {
-			String triplet = nucleotides.substring(index, index + 3);
+		for (int i = 0; i < nucleotides.length() - 2; i += 3) {
+			String triplet = nucleotides.substring(i, i + 3);
 
 			Optional<Character> aminoacid = CODON.get(triplet);
 			if (aminoacid.isPresent()) {

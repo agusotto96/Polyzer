@@ -17,29 +17,30 @@ public class PolymerFactory {
 
 	public Polymer getPolymer(String type, String sequence) {
 
-		switch (type) {
-		case DNA:
-			return new DNA(sequence);
-		case RNA:
-			return new RNA(sequence);
-		case PROTEIN:
-			return new Protein(sequence);
-		default:
-			throw new IllegalArgumentException("invalid type");
-		}
+		Polymer polymer = switch (type) {
+
+		case DNA -> new DNA(sequence);
+		case RNA -> new RNA(sequence);
+		case PROTEIN -> new Protein(sequence);
+		default -> throw new IllegalArgumentException("invalid type");
+
+		};
+
+		return polymer;
 
 	}
 
 	public NucleicAcid getNucleicAcid(String type, String sequence) {
 
-		switch (type) {
-		case DNA:
-			return new DNA(sequence);
-		case RNA:
-			return new RNA(sequence);
-		default:
-			throw new IllegalArgumentException("invalid type");
-		}
+		NucleicAcid nucleicAcid = switch (type) {
+
+		case DNA -> new DNA(sequence);
+		case RNA -> new RNA(sequence);
+		default -> throw new IllegalArgumentException("invalid type");
+
+		};
+
+		return nucleicAcid;
 
 	}
 
