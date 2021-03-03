@@ -1,4 +1,4 @@
-package app.service;
+package app.service.implementations;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,8 +9,9 @@ import org.springframework.stereotype.Service;
 import app.model.Polymer;
 
 @Service
-public class PolymerAnalyzer {
+public class PolymerAnalyzer implements app.service.interfaces.PolymerAnalyzer {
 
+	@Override
 	public int calculateHammingDistance(Polymer firstPolymer, Polymer secondPolymer) {
 
 		if (firstPolymer == null || secondPolymer == null) {
@@ -33,6 +34,7 @@ public class PolymerAnalyzer {
 
 	}
 
+	@Override
 	public List<Integer> calculateSubsequenceLocations(Polymer polymer, Polymer subpolymer) {
 
 		if (polymer == null || subpolymer == null) {
@@ -57,6 +59,7 @@ public class PolymerAnalyzer {
 
 	}
 
+	@Override
 	public Optional<String> calculateLongestCommonSubsequence(List<Polymer> polymers) {
 
 		if (polymers == null || polymers.isEmpty()) {

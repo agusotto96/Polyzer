@@ -25,8 +25,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import app.model.NucleicAcid;
 import app.model.Polymer;
-import app.service.PolymerFactory;
-import app.service.PolymerDataHandler;
+import app.service.interfaces.PolymerDataHandler;
+import app.service.interfaces.PolymerFactory;
 
 @RestController
 @RequestMapping("polymers")

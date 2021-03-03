@@ -1,4 +1,8 @@
-package app.service;
+package app.service.implementations;
+
+import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -9,12 +13,9 @@ import app.model.Protein;
 import app.model.RNA;
 
 @Service
-public class PolymerFactory {
+public class PolymerFactory implements app.service.interfaces.PolymerFactory {
 
-	public static final String DNA = "dna";
-	public static final String RNA = "rna";
-	public static final String PROTEIN = "protein";
-
+	@Override
 	public Polymer getPolymer(String type, String sequence) {
 
 		Polymer polymer = switch (type) {
@@ -30,6 +31,22 @@ public class PolymerFactory {
 
 	}
 
+	@Override
+	public List<Polymer> getPolymers(String type, List<String> sequences) {
+
+		Function<String, Polymer> mapper = switch (type) {
+
+		case DNA -> sequence -> new DNA(sequence);
+		case RNA -> sequence -> new RNA(sequence);
+		case PROTEIN -> sequence -> new Protein(sequence);
+		default -> throw new IllegalArgumentException("invalid type");
+
+		};
+
+		return sequences.stream().map(mapper).collect(Collectors.toList());
+	}
+
+	@Override
 	public NucleicAcid getNucleicAcid(String type, String sequence) {
 
 		NucleicAcid nucleicAcid = switch (type) {
