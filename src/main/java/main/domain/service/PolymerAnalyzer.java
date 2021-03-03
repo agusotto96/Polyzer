@@ -1,10 +1,10 @@
-package main.model.service;
+package main.domain.service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import main.model.entity.Polymer;
+import main.domain.entity.Polymer;
 
 public class PolymerAnalyzer {
 

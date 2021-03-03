@@ -1,8 +1,8 @@
-package main.model.entity;
+package main.domain.entity;
 
 import java.util.Set;
 
-import main.model.constant.Aminoacid;
+import main.domain.constant.Aminoacid;
 
 public final class Protein extends Polymer {
 

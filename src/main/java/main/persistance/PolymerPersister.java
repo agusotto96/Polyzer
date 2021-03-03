@@ -1,4 +1,4 @@
-package main.service;
+package main.persistance;
 
 import java.util.List;
 import java.util.Optional;
@@ -9,23 +9,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import main.model.entity.DNA;
-import main.model.entity.NucleicAcid;
-import main.model.entity.Polymer;
-import main.model.entity.Protein;
-import main.model.entity.RNA;
-import main.persistance.Sequence;
-import main.persistance.SequenceRepository;
+import main.domain.entity.NucleicAcid;
+import main.domain.entity.Polymer;
+import main.domain.service.PolymerFactory;
 
 @Service
-public class PolymerService {
-
-	public static final String DNA = "dna";
-	public static final String RNA = "rna";
-	public static final String PROTEIN = "protein";
+public class PolymerPersister {
 
 	@Autowired
-	SequenceRepository sequenceRepository;
+	private SequenceRepository sequenceRepository;
 
 	public Page<String> findTags(String type, Pageable pageable) {
 		return sequenceRepository.findTags(type, pageable);
@@ -36,25 +28,24 @@ public class PolymerService {
 	}
 
 	public Optional<Polymer> findPolymer(String type, String tag, long id) {
-		return sequenceRepository.findSequence(type, tag, id).map(sequence -> getPolymer(type, sequence));
+		return sequenceRepository.findSequence(type, tag, id).map(sequence -> PolymerFactory.getPolymer(type, sequence));
 	}
 
 	public List<Polymer> findPolymers(String type, List<String> tags, List<Long> ids) {
 
 		List<String> sequences = sequenceRepository.findSequences(type, tags, ids);
-		List<Polymer> polymers = sequences.stream().map(sequence -> getPolymer(type, sequence)).collect(Collectors.toList());
+		List<Polymer> polymers = sequences.stream().map(sequence -> PolymerFactory.getPolymer(type, sequence)).collect(Collectors.toList());
 
 		return polymers;
 
 	}
 
 	public Optional<NucleicAcid> findNucleicAcid(String type, String tag, long id) {
-		return sequenceRepository.findSequence(type, tag, id).map(sequence -> getNucleicAcid(type, sequence));
+		return sequenceRepository.findSequence(type, tag, id).map(sequence -> PolymerFactory.getNucleicAcid(type, sequence));
 	}
 
-	public void savePolymers(String type, String tag, List<String> sequences) {
-		sequences.forEach(sequence -> getPolymer(type, sequence));
-		sequenceRepository.saveAll(sequences.stream().map(sequence -> new Sequence(tag, type, sequence)).collect(Collectors.toList()));
+	public void savePolymers(String type, String tag, List<Polymer> polymers) {
+		sequenceRepository.saveAll(polymers.stream().map(polymer -> new Sequence(tag, type, polymer.getSequence())).collect(Collectors.toList()));
 	}
 
 	public void updateTag(String type, String tag, String newTag) {
@@ -79,34 +70,6 @@ public class PolymerService {
 
 	public void deletePolymer(String type, String tag, long id) {
 		sequenceRepository.deleteSequence(type, tag, id);
-	}
-
-	private Polymer getPolymer(String type, String sequence) {
-
-		switch (type) {
-		case DNA:
-			return new DNA(sequence);
-		case RNA:
-			return new RNA(sequence);
-		case PROTEIN:
-			return new Protein(sequence);
-		default:
-			throw new IllegalArgumentException("invalid type");
-		}
-
-	}
-
-	private NucleicAcid getNucleicAcid(String type, String sequence) {
-
-		switch (type) {
-		case DNA:
-			return new DNA(sequence);
-		case RNA:
-			return new RNA(sequence);
-		default:
-			throw new IllegalArgumentException("invalid type");
-		}
-
 	}
 
 }

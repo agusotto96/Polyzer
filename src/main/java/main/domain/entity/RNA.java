@@ -1,20 +1,20 @@
-package main.model.entity;
+package main.domain.entity;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import main.model.constant.Nucleotide;
+import main.domain.constant.Nucleotide;
 
-public final class DNA extends NucleicAcid {
+public final class RNA extends NucleicAcid {
 
-	public DNA(String sequence) {
+	public RNA(String sequence) {
 		super(sequence);
 	}
 
 	@Override
 	Set<Character> getValidMonomers() {
-		return Set.of(Nucleotide.ADENINE, Nucleotide.CYTOSINE, Nucleotide.GUANINE, Nucleotide.THYMINE);
+		return Set.of(Nucleotide.ADENINE, Nucleotide.CYTOSINE, Nucleotide.GUANINE, Nucleotide.URACIL);
 	}
 
 	@Override
@@ -24,8 +24,8 @@ public final class DNA extends NucleicAcid {
 
 		complementaryNucleotides.put(Nucleotide.CYTOSINE, Nucleotide.GUANINE);
 		complementaryNucleotides.put(Nucleotide.GUANINE, Nucleotide.CYTOSINE);
-		complementaryNucleotides.put(Nucleotide.ADENINE, Nucleotide.THYMINE);
-		complementaryNucleotides.put(Nucleotide.THYMINE, Nucleotide.ADENINE);
+		complementaryNucleotides.put(Nucleotide.ADENINE, Nucleotide.URACIL);
+		complementaryNucleotides.put(Nucleotide.URACIL, Nucleotide.ADENINE);
 
 		return complementaryNucleotides;
 	}

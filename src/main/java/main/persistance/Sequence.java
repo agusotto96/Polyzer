@@ -8,7 +8,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "SEQUENCES")
-public class Sequence {
+class Sequence {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,11 +17,11 @@ public class Sequence {
 	private String type;
 	private String value;
 
-	public Sequence() {
+	Sequence() {
 		super();
 	}
 
-	public Sequence(String tag, String type, String sequence) {
+	Sequence(String tag, String type, String sequence) {
 		super();
 		this.tag = tag;
 		this.type = type;
@@ -45,19 +45,19 @@ public class Sequence {
 
 	}
 
-	public Long getId() {
+	Long getId() {
 		return id;
 	}
 
-	public String getTag() {
+	String getTag() {
 		return tag;
 	}
 
-	public String getType() {
+	String getType() {
 		return type;
 	}
 
-	public String getValue() {
+	String getValue() {
 		return value;
 	}
 

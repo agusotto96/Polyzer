@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 @Transactional
-public interface SequenceRepository extends JpaRepository<Sequence, Long> {
+interface SequenceRepository extends JpaRepository<Sequence, Long> {
 
 	@Query(value = "select distinct sequence.tag from Sequence sequence where sequence.type = :type")
 	Page<String> findTags(String type, Pageable pageable);

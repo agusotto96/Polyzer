@@ -1,4 +1,4 @@
-package main.model.constant;
+package main.domain.constant;
 
 public class Nucleotide {
 

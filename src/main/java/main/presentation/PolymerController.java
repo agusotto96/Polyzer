@@ -3,7 +3,9 @@ package main.presentation;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -22,40 +24,41 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import main.model.entity.NucleicAcid;
-import main.model.entity.Polymer;
-import main.service.PolymerService;
+import main.domain.entity.NucleicAcid;
+import main.domain.entity.Polymer;
+import main.domain.service.PolymerFactory;
+import main.persistance.PolymerPersister;
 
 @RestController
 @RequestMapping("polymers")
-public class PolymerController {
+class PolymerController {
 
-	private static final String POLYMER      = 	"{type:" + PolymerService.DNA + "|" + PolymerService.RNA + "|" + PolymerService.PROTEIN + "}";
-	private static final String NUCLEIC_ACID = 	"{type:" + PolymerService.DNA + "|" + PolymerService.RNA + "}";
+	private static final String POLYMER = "{type:" + PolymerFactory.DNA + "|" + PolymerFactory.RNA + "|" + PolymerFactory.PROTEIN + "}";
+	private static final String NUCLEIC_ACID = "{type:" + PolymerFactory.DNA + "|" + PolymerFactory.RNA + "}";
 
 	@Autowired
-	PolymerService polymerService;
+	private PolymerPersister polymerPersister;
 
 	@GetMapping()
-	public Set<String> findTypes() {
-		return Set.of(PolymerService.DNA, PolymerService.RNA, PolymerService.PROTEIN);
+	Set<String> findTypes() {
+		return Set.of(PolymerFactory.DNA, PolymerFactory.RNA, PolymerFactory.PROTEIN);
 	}
 
 	@GetMapping(POLYMER)
-	public Map<String, Object> findTags(@PathVariable String type, @RequestParam int page, @RequestParam int size) {
+	Map<String, Object> findTags(@PathVariable String type, @RequestParam int page, @RequestParam int size) {
 
 		Pageable pageable = PageRequest.of(page, size, Sort.by("tag"));
-		Page<String> tags = polymerService.findTags(type, pageable);
+		Page<String> tags = polymerPersister.findTags(type, pageable);
 
 		return formatPages("tags", tags);
 
 	}
 
 	@GetMapping(POLYMER + "/{tag}")
-	public Map<String, Object> findIds(@PathVariable String type, @PathVariable String tag, @RequestParam int page, @RequestParam int size) {
+	Map<String, Object> findIds(@PathVariable String type, @PathVariable String tag, @RequestParam int page, @RequestParam int size) {
 
 		Pageable pageable = PageRequest.of(page, size, Sort.by("id"));
-		Page<Long> ids = polymerService.findIds(type, tag, pageable);
+		Page<Long> ids = polymerPersister.findIds(type, tag, pageable);
 
 		if (ids.getContent().isEmpty()) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
@@ -65,53 +68,49 @@ public class PolymerController {
 
 	}
 
-	@GetMapping(POLYMER + "/{tag}/{id}")
-	public String findPolymer(@PathVariable String type, @PathVariable String tag, @PathVariable long id) {
+	@GetMapping(value = POLYMER + "/{tag}/{id}")
+	Optional<String> findPolymer(@PathVariable String type, @PathVariable String tag, @PathVariable long id) {
 
-		Polymer polymer = polymerService.findPolymer(type, tag, id)
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+		Polymer polymer = polymerPersister.findPolymer(type, tag, id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-		return polymer.getSequence();
+		return Optional.of(polymer.getSequence());
 
 	}
 
 	@GetMapping(POLYMER + "/{tag}/{id}/monomer-count")
-	public Map<Character, Integer> getMonomerCount(@PathVariable String type, @PathVariable String tag, @PathVariable long id) {
+	Map<Character, Integer> getMonomerCount(@PathVariable String type, @PathVariable String tag, @PathVariable long id) {
 
-		Polymer polymer = polymerService.findPolymer(type, tag, id)
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+		Polymer polymer = polymerPersister.findPolymer(type, tag, id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
 		return polymer.getMonomerCount();
 
 	}
 
 	@GetMapping(POLYMER + "/{tag}/{id}/clump-forming-patterns")
-	public Set<String> getClumpFormingPatterns(
-			@PathVariable String type, 	@PathVariable String tag, 	@PathVariable long id, 
-			@RequestParam int size, 	@RequestParam int times, 	@RequestParam int range) {
+	Set<String> getClumpFormingPatterns(@PathVariable String type, @PathVariable String tag, @PathVariable long id, 
+			@RequestParam int size, @RequestParam int times, @RequestParam int range) {
 
-		Polymer polymer = polymerService.findPolymer(type, tag, id)
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+		Polymer polymer = polymerPersister.findPolymer(type, tag, id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
 		return polymer.getClumpFormingPatterns(size, times, range);
 
 	}
 
 	@GetMapping(NUCLEIC_ACID + "/{tag}/{id}/reverse-complement")
-	public String getReverseComplement(@PathVariable String type, @PathVariable String tag, @PathVariable long id) {
+	Optional<String> getReverseComplement(@PathVariable String type, @PathVariable String tag, @PathVariable long id) {
 
-		NucleicAcid nucleicAcid = polymerService.findNucleicAcid(type, tag, id)
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+		NucleicAcid nucleicAcid = polymerPersister.findNucleicAcid(type, tag, id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-		return nucleicAcid.getReverseComplement();
+		return Optional.of(nucleicAcid.getReverseComplement());
 
 	}
 
 	@PostMapping(POLYMER + "/{tag}")
-	public void savePolymers(@PathVariable String type, @PathVariable String tag, @RequestBody List<String> sequences) {
+	void savePolymers(@PathVariable String type, @PathVariable String tag, @RequestBody List<String> sequences) {
 
 		try {
-			polymerService.savePolymers(type, tag, sequences);
+			List<Polymer> polymers = sequences.stream().map(sequence -> PolymerFactory.getPolymer(type, sequence)).collect(Collectors.toList());
+			polymerPersister.savePolymers(type, tag, polymers);
 
 		} catch (IllegalArgumentException exception) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exception.getMessage());
@@ -120,33 +119,33 @@ public class PolymerController {
 	}
 
 	@PutMapping(POLYMER + "/{tag}")
-	public void updateTag(@PathVariable String type, @PathVariable String tag, @RequestBody String newTag) {
-		polymerService.updateTag(type, tag, newTag);
+	void updateTag(@PathVariable String type, @PathVariable String tag, @RequestBody String newTag) {
+		polymerPersister.updateTag(type, tag, newTag);
 	}
 
 	@PutMapping(POLYMER + "/{tag}/{id}")
-	public void updatePolymer(@PathVariable String type, @PathVariable String tag, @PathVariable long id, @RequestBody String newSequence) {
-		polymerService.updatePolymer(type, tag, id, newSequence);
+	void updatePolymer(@PathVariable String type, @PathVariable String tag, @PathVariable long id, @RequestBody String newSequence) {
+		polymerPersister.updatePolymer(type, tag, id, newSequence);
 	}
 
 	@DeleteMapping()
-	public void deletePolymers() {
-		polymerService.deletePolymers();
+	void deletePolymers() {
+		polymerPersister.deletePolymers();
 	}
 
 	@DeleteMapping(POLYMER)
-	public void deletePolymers(@PathVariable String type) {
-		polymerService.deletePolymers(type);
+	void deletePolymers(@PathVariable String type) {
+		polymerPersister.deletePolymers(type);
 	}
 
 	@DeleteMapping(POLYMER + "/{tag}")
-	public void deletePolymers(@PathVariable String type, @PathVariable String tag) {
-		polymerService.deletePolymers(type, tag);
+	void deletePolymers(@PathVariable String type, @PathVariable String tag) {
+		polymerPersister.deletePolymers(type, tag);
 	}
 
 	@DeleteMapping(POLYMER + "/{tag}/{id}")
-	public void deletePolymer(@PathVariable String type, @PathVariable String tag, @PathVariable long id) {
-		polymerService.deletePolymer(type, tag, id);
+	void deletePolymer(@PathVariable String type, @PathVariable String tag, @PathVariable long id) {
+		polymerPersister.deletePolymer(type, tag, id);
 	}
 
 	private Map<String, Object> formatPages(String content, Page<?> pages) {
