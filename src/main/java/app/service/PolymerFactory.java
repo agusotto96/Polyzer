@@ -1,18 +1,21 @@
-package main.domain.service;
+package app.service;
 
-import main.domain.entity.DNA;
-import main.domain.entity.NucleicAcid;
-import main.domain.entity.Polymer;
-import main.domain.entity.Protein;
-import main.domain.entity.RNA;
+import org.springframework.stereotype.Service;
 
+import app.model.DNA;
+import app.model.NucleicAcid;
+import app.model.Polymer;
+import app.model.Protein;
+import app.model.RNA;
+
+@Service
 public class PolymerFactory {
 
 	public static final String DNA = "dna";
 	public static final String RNA = "rna";
 	public static final String PROTEIN = "protein";
 
-	public static Polymer getPolymer(String type, String sequence) {
+	public Polymer getPolymer(String type, String sequence) {
 
 		switch (type) {
 		case DNA:
@@ -27,7 +30,7 @@ public class PolymerFactory {
 
 	}
 
-	public static NucleicAcid getNucleicAcid(String type, String sequence) {
+	public NucleicAcid getNucleicAcid(String type, String sequence) {
 
 		switch (type) {
 		case DNA:

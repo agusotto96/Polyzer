@@ -1,4 +1,4 @@
-package main.presentation;
+package app.presentation;
 
 import java.util.List;
 import java.util.Optional;
@@ -11,27 +11,30 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import main.domain.entity.Polymer;
-import main.domain.service.PolymerAnalyzer;
-import main.persistance.PolymerPersister;
+import app.model.Polymer;
+import app.service.PolymerAnalyzer;
+import app.service.PolymerHandler;
 
 @RestController
 @RequestMapping("analysis")
 class AnalysisController {
 
 	@Autowired
-	PolymerPersister polymerPersister;
+	PolymerHandler polymerHandler;
+	
+	@Autowired
+	PolymerAnalyzer polymerAnalyzer;
 
 	@GetMapping("hamming-distance")
 	int calculateHammingDistance(@RequestParam String type, @RequestParam(defaultValue = "") List<String> tags, @RequestParam(defaultValue = "") List<Long> ids) {
 
-		List<Polymer> polymers = polymerPersister.findPolymers(type, tags, ids);
+		List<Polymer> polymers = polymerHandler.findPolymers(type, tags, ids);
 
 		if (polymers.size() != 2) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "two and only two polymers must be selected");
 		}
 
-		return PolymerAnalyzer.calculateHammingDistance(polymers.get(0), polymers.get(1));
+		return polymerAnalyzer.calculateHammingDistance(polymers.get(0), polymers.get(1));
 
 	}
 
@@ -39,11 +42,11 @@ class AnalysisController {
 	List<Integer> findSubsequenceLocations(@RequestParam String type, @RequestParam String polymerTag, @RequestParam String subpolymerTag, @RequestParam long polymerId, 
 			@RequestParam long subpolymerId) {
 
-		Polymer polymer = polymerPersister.findPolymer(type, polymerTag, polymerId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+		Polymer polymer = polymerHandler.findPolymer(type, polymerTag, polymerId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-		Polymer subpolymer = polymerPersister.findPolymer(type, subpolymerTag, subpolymerId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+		Polymer subpolymer = polymerHandler.findPolymer(type, subpolymerTag, subpolymerId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-		return PolymerAnalyzer.calculateSubsequenceLocations(polymer, subpolymer);
+		return polymerAnalyzer.calculateSubsequenceLocations(polymer, subpolymer);
 
 	}
 
@@ -51,13 +54,13 @@ class AnalysisController {
 	Optional<String> calculateLongestCommonSubsequence(@RequestParam String type, @RequestParam(defaultValue = "") List<String> tags, 
 			@RequestParam(defaultValue = "") List<Long> ids) {
 
-		List<Polymer> polymers = polymerPersister.findPolymers(type, tags, ids);
+		List<Polymer> polymers = polymerHandler.findPolymers(type, tags, ids);
 
 		if (polymers.size() < 2) {
 			throw new IllegalArgumentException("at least two polymers must be selected");
 		}
 
-		return PolymerAnalyzer.calculateLongestCommonSubsequence(polymers);
+		return polymerAnalyzer.calculateLongestCommonSubsequence(polymers);
 
 	}
 

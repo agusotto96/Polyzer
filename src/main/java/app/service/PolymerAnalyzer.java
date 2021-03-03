@@ -1,14 +1,17 @@
-package main.domain.service;
+package app.service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import main.domain.entity.Polymer;
+import org.springframework.stereotype.Service;
 
+import app.model.Polymer;
+
+@Service
 public class PolymerAnalyzer {
 
-	public static int calculateHammingDistance(Polymer firstPolymer, Polymer secondPolymer) {
+	public int calculateHammingDistance(Polymer firstPolymer, Polymer secondPolymer) {
 
 		if (firstPolymer == null || secondPolymer == null) {
 			throw new IllegalArgumentException("polymers cannot be empty");
@@ -30,7 +33,7 @@ public class PolymerAnalyzer {
 
 	}
 
-	public static List<Integer> calculateSubsequenceLocations(Polymer polymer, Polymer subpolymer) {
+	public List<Integer> calculateSubsequenceLocations(Polymer polymer, Polymer subpolymer) {
 
 		if (polymer == null || subpolymer == null) {
 			throw new IllegalArgumentException("polymers cannot be empty");
@@ -54,7 +57,7 @@ public class PolymerAnalyzer {
 
 	}
 
-	public static Optional<String> calculateLongestCommonSubsequence(List<Polymer> polymers) {
+	public Optional<String> calculateLongestCommonSubsequence(List<Polymer> polymers) {
 
 		if (polymers == null || polymers.isEmpty()) {
 			throw new IllegalArgumentException("polymers cannot be null nor empty");

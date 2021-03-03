@@ -1,14 +1,17 @@
-package main.domain.service;
+package app.service;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import main.domain.constant.Aminoacid;
-import main.domain.constant.Nucleotide;
-import main.domain.entity.Protein;
-import main.domain.entity.RNA;
+import org.springframework.stereotype.Service;
 
+import app.model.Aminoacid;
+import app.model.Nucleotide;
+import app.model.Protein;
+import app.model.RNA;
+
+@Service
 public class PolymerTranslator {
 
 	public static final Map<String, Optional<Character>> CODON;

@@ -1,4 +1,4 @@
-package main.domain.constant;
+package app.model;
 
 public class Aminoacid {
 
