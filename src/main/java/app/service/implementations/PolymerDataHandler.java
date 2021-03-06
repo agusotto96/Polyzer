@@ -36,14 +36,14 @@ public class PolymerDataHandler implements app.service.interfaces.PolymerDataHan
 
 	@Override
 	public Optional<Polymer> findPolymer(String type, String tag, long id) {
-		return sequenceRepository.findSequence(type, tag, id).map(sequence -> polymerFactory.getPolymer(type, sequence));
+		return sequenceRepository.findSequence(type, tag, id).map(sequence -> polymerFactory.getPolymer(PolymerFactory.Type.valueOf(type), sequence));
 	}
 
 	@Override
 	public List<Polymer> findPolymers(String type, List<String> tags, List<Long> ids) {
 
 		List<String> sequences = sequenceRepository.findSequences(type, tags, ids);
-		List<Polymer> polymers = polymerFactory.getPolymers(type, sequences);
+		List<Polymer> polymers = polymerFactory.getPolymers(PolymerFactory.Type.valueOf(type), sequences);
 
 		return polymers;
 
@@ -51,13 +51,13 @@ public class PolymerDataHandler implements app.service.interfaces.PolymerDataHan
 
 	@Override
 	public Optional<NucleicAcid> findNucleicAcid(String type, String tag, long id) {
-		return sequenceRepository.findSequence(type, tag, id).map(sequence -> polymerFactory.getNucleicAcid(type, sequence));
+		return sequenceRepository.findSequence(type, tag, id).map(sequence -> polymerFactory.getNucleicAcid(PolymerFactory.Type.valueOf(type), sequence));
 	}
 
 	@Override
 	public void savePolymers(String type, String tag, List<String> sequences) {
 
-		List<Polymer> polymers = polymerFactory.getPolymers(type, sequences);
+		List<Polymer> polymers = polymerFactory.getPolymers(PolymerFactory.Type.valueOf(type), sequences);
 		sequenceRepository.saveAll(polymers.stream().map(polymer -> new Sequence(tag, type, polymer.getSequence())).collect(Collectors.toList()));
 
 	}

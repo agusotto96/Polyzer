@@ -7,14 +7,14 @@ import app.model.Polymer;
 
 public interface PolymerFactory {
 
-	String DNA = "dna";
-	String RNA = "rna";
-	String PROTEIN = "protein";
+	public enum Type {
+		DNA, RNA, PROTEIN
+	}
 
-	Polymer getPolymer(String type, String sequence);
-	
-	List<Polymer> getPolymers(String type, List<String> sequences);
+	Polymer getPolymer(Type type, String sequence);
 
-	NucleicAcid getNucleicAcid(String type, String sequence);
+	List<Polymer> getPolymers(Type type, List<String> sequences);
+
+	NucleicAcid getNucleicAcid(Type type, String sequence);
 
 }
