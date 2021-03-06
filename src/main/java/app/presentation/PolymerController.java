@@ -27,7 +27,6 @@ import app.model.NucleicAcid;
 import app.model.Polymer;
 import app.service.interfaces.PolymerDataHandler;
 import app.service.interfaces.PolymerFactory;
-import app.service.interfaces.PolymerFactory.Type;
 
 @RestController
 @RequestMapping("polymers")
@@ -37,8 +36,8 @@ class PolymerController {
 	private PolymerDataHandler polymerHandler;
 
 	@GetMapping()
-	Type[] findTypes() {
-		return PolymerFactory.Type.values();
+	Set<String> findTypes() {
+		return PolymerFactory.TYPES;
 	}
 
 	@GetMapping("{type}")
@@ -46,6 +45,10 @@ class PolymerController {
 
 		Pageable pageable = PageRequest.of(page, size, Sort.by("tag"));
 		Page<String> tags = polymerHandler.findTags(type, pageable);
+
+		if (tags.isEmpty()) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "tags not found");
+		}
 
 		return formatPages("tags", tags);
 
@@ -58,7 +61,7 @@ class PolymerController {
 		Page<Long> ids = polymerHandler.findIds(type, tag, pageable);
 
 		if (ids.getContent().isEmpty()) {
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "polymer not found");
 		}
 
 		return formatPages("ids", ids);
@@ -68,7 +71,8 @@ class PolymerController {
 	@GetMapping("{type}/{tag}/{id}")
 	Optional<String> findPolymer(@PathVariable String type, @PathVariable String tag, @PathVariable long id) {
 
-		Polymer polymer = polymerHandler.findPolymer(type, tag, id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+		Polymer polymer = polymerHandler.findPolymer(type, tag, id)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "polymer not found"));
 
 		return Optional.of(polymer.getSequence());
 
@@ -77,7 +81,8 @@ class PolymerController {
 	@GetMapping("{type}/{tag}/{id}/monomer-count")
 	Map<Character, Integer> getMonomerCount(@PathVariable String type, @PathVariable String tag, @PathVariable long id) {
 
-		Polymer polymer = polymerHandler.findPolymer(type, tag, id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+		Polymer polymer = polymerHandler.findPolymer(type, tag, id)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "polymer not found"));
 
 		return polymer.getMonomerCount();
 
@@ -87,7 +92,8 @@ class PolymerController {
 	Set<String> getClumpFormingPatterns(@PathVariable String type, @PathVariable String tag, @PathVariable long id, 
 			@RequestParam int size, @RequestParam int times, @RequestParam int range) {
 
-		Polymer polymer = polymerHandler.findPolymer(type, tag, id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+		Polymer polymer = polymerHandler.findPolymer(type, tag, id)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "polymer not found"));
 
 		return polymer.getClumpFormingPatterns(size, times, range);
 
@@ -96,7 +102,8 @@ class PolymerController {
 	@GetMapping("{type}/{tag}/{id}/reverse-complement")
 	Optional<String> getReverseComplement(@PathVariable String type, @PathVariable String tag, @PathVariable long id) {
 
-		NucleicAcid nucleicAcid = polymerHandler.findNucleicAcid(type, tag, id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+		NucleicAcid nucleicAcid = polymerHandler.findNucleicAcid(type, tag, id)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "polymer not found"));
 
 		return Optional.of(nucleicAcid.getReverseComplement());
 
@@ -105,12 +112,7 @@ class PolymerController {
 	@PostMapping("{type}/{tag}")
 	void savePolymers(@PathVariable String type, @PathVariable String tag, @RequestBody List<String> sequences) {
 
-		try {
-			polymerHandler.savePolymers(type, tag, sequences);
-
-		} catch (IllegalArgumentException exception) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exception.getMessage());
-		}
+		polymerHandler.savePolymers(type, tag, sequences);
 
 	}
 

@@ -2,7 +2,7 @@ package app.model;
 
 import java.util.Set;
 
-public final class Protein extends Polymer {
+public class Protein extends Polymer {
 
 	public Protein(String sequence) {
 		super(sequence);

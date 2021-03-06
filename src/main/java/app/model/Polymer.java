@@ -20,11 +20,6 @@ public abstract class Polymer {
 		return sequence;
 	}
 
-	public void setSequence(String sequence) {
-		this.sequence = sequence;
-		this.validatePolymer();
-	}
-
 	public Map<Character, Integer> getMonomerCount() {
 
 		Map<Character, Integer> monomerCount = new HashMap<>();
@@ -69,13 +64,23 @@ public abstract class Polymer {
 	private void validatePolymer() {
 
 		if (this.sequence == null || this.sequence.isBlank()) {
-			throw new IllegalArgumentException("sequence cannot be empty");
+			throw new InvalidSequenceException("sequence cannot be empty");
 		}
 
 		for (char monomer : this.sequence.toCharArray()) {
 			if (!getValidMonomers().contains(monomer)) {
-				throw new IllegalArgumentException("sequence contains invalid monomer");
+				throw new InvalidSequenceException("sequence contains invalid monomer");
 			}
+		}
+
+	}
+
+	public class InvalidSequenceException extends RuntimeException {
+
+		private static final long serialVersionUID = -6970237712012706976L;
+
+		public InvalidSequenceException(String errorMessage) {
+			super(errorMessage);
 		}
 
 	}

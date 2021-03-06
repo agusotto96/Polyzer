@@ -16,13 +16,14 @@ import app.model.RNA;
 public class PolymerFactory implements app.service.interfaces.PolymerFactory {
 
 	@Override
-	public Polymer getPolymer(Type type, String sequence) {
+	public Polymer getPolymer(String type, String sequence) {
 
 		Polymer polymer = switch (type) {
 
 		case DNA -> new DNA(sequence);
 		case RNA -> new RNA(sequence);
 		case PROTEIN -> new Protein(sequence);
+		default -> throw new InvalidTypeException("Unexpected value: " + type);
 		};
 
 		return polymer;
@@ -30,13 +31,14 @@ public class PolymerFactory implements app.service.interfaces.PolymerFactory {
 	}
 
 	@Override
-	public List<Polymer> getPolymers(Type type, List<String> sequences) {
+	public List<Polymer> getPolymers(String type, List<String> sequences) {
 
 		Function<String, Polymer> mapper = switch (type) {
 
 		case DNA -> sequence -> new DNA(sequence);
 		case RNA -> sequence -> new RNA(sequence);
 		case PROTEIN -> sequence -> new Protein(sequence);
+		default -> throw new InvalidTypeException("Unexpected value: " + type);
 		};
 
 		return sequences.stream().map(mapper).collect(Collectors.toList());
@@ -44,13 +46,13 @@ public class PolymerFactory implements app.service.interfaces.PolymerFactory {
 	}
 
 	@Override
-	public NucleicAcid getNucleicAcid(Type type, String sequence) {
+	public NucleicAcid getNucleicAcid(String type, String sequence) {
 
 		NucleicAcid nucleicAcid = switch (type) {
 
 		case DNA -> new DNA(sequence);
 		case RNA -> new RNA(sequence);
-		default -> throw new IllegalArgumentException("invalid type");
+		default -> throw new InvalidTypeException("Unexpected value: " + type);
 		};
 
 		return nucleicAcid;

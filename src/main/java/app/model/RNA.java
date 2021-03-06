@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public final class RNA extends NucleicAcid {
+public class RNA extends NucleicAcid {
 
 	public RNA(String sequence) {
 		super(sequence);
