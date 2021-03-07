@@ -1,4 +1,4 @@
-package app.service.implementations;
+package app.service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,9 +9,8 @@ import org.springframework.stereotype.Service;
 import app.model.Polymer;
 
 @Service
-public class PolymerAnalyzer implements app.service.interfaces.PolymerAnalyzer {
+public class PolymerAnalyzer {
 
-	@Override
 	public int calculateHammingDistance(Polymer firstPolymer, Polymer secondPolymer) {
 
 		if (firstPolymer == null || secondPolymer == null) {
@@ -34,7 +33,6 @@ public class PolymerAnalyzer implements app.service.interfaces.PolymerAnalyzer {
 
 	}
 
-	@Override
 	public List<Integer> calculateSubsequenceLocations(Polymer polymer, Polymer subpolymer) {
 
 		if (polymer == null || subpolymer == null) {
@@ -59,7 +57,6 @@ public class PolymerAnalyzer implements app.service.interfaces.PolymerAnalyzer {
 
 	}
 
-	@Override
 	public Optional<String> calculateLongestCommonSubsequence(List<Polymer> polymers) {
 
 		if (polymers == null || polymers.isEmpty()) {
@@ -67,7 +64,7 @@ public class PolymerAnalyzer implements app.service.interfaces.PolymerAnalyzer {
 		}
 
 		if (polymers.size() < 2) {
-			throw new IllegalArgumentException("at least two sequences are needed to compare");
+			throw new IllegalArgumentException("at least two sequences are needed to compare");	
 		}
 
 		try {

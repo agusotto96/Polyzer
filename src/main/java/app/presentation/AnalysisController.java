@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import app.model.Polymer;
-import app.service.interfaces.PolymerAnalyzer;
-import app.service.interfaces.PolymerDataHandler;
+import app.service.PolymerAnalyzer;
+import app.service.PolymerDataHandler;
 
 @RestController
 @RequestMapping("analysis")

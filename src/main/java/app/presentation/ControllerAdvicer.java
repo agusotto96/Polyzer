@@ -14,7 +14,7 @@ import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import app.model.Polymer.InvalidSequenceException;
-import app.service.interfaces.PolymerFactory.InvalidTypeException;
+import app.service.PolymerFactory.InvalidTypeException;
 
 @ControllerAdvice
 public class ControllerAdvicer extends ResponseEntityExceptionHandler {

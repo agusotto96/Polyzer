@@ -1,6 +1,7 @@
-package app.service.implementations;
+package app.service;
 
 import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -13,9 +14,15 @@ import app.model.Protein;
 import app.model.RNA;
 
 @Service
-public class PolymerFactory implements app.service.interfaces.PolymerFactory {
+public class PolymerFactory {
 
-	@Override
+	public static final String DNA = "DNA";
+	public static final String RNA = "RNA";
+	public static final String PROTEIN = "protein";
+
+	public static final Set<String> POLYMERS = Set.of(DNA, RNA, PROTEIN);
+	public static final Set<String> NUCLEIC_ACIDS = Set.of(DNA, RNA);
+
 	public Polymer getPolymer(String type, String sequence) {
 
 		Polymer polymer = switch (type) {
@@ -30,7 +37,6 @@ public class PolymerFactory implements app.service.interfaces.PolymerFactory {
 
 	}
 
-	@Override
 	public List<Polymer> getPolymers(String type, List<String> sequences) {
 
 		Function<String, Polymer> mapper = switch (type) {
@@ -45,7 +51,6 @@ public class PolymerFactory implements app.service.interfaces.PolymerFactory {
 
 	}
 
-	@Override
 	public NucleicAcid getNucleicAcid(String type, String sequence) {
 
 		NucleicAcid nucleicAcid = switch (type) {
@@ -56,6 +61,16 @@ public class PolymerFactory implements app.service.interfaces.PolymerFactory {
 		};
 
 		return nucleicAcid;
+
+	}
+
+	public class InvalidTypeException extends RuntimeException {
+
+		private static final long serialVersionUID = -6970237712012706976L;
+
+		public InvalidTypeException(String errorMessage) {
+			super(errorMessage);
+		}
 
 	}
 
