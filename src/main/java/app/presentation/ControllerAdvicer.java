@@ -13,13 +13,13 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import app.model.Polymer.InvalidSequenceException;
-import app.service.PolymerFactory.InvalidTypeException;
+import app.model.Polymer.InvalidPolymerValueException;
+import app.service.PolymerFactory.InvalidPolymerTypeException;
 
 @ControllerAdvice
 public class ControllerAdvicer extends ResponseEntityExceptionHandler {
 
-	@ExceptionHandler({ InvalidSequenceException.class, InvalidTypeException.class })
+	@ExceptionHandler({ InvalidPolymerValueException.class, InvalidPolymerTypeException.class })
 	protected ResponseEntity<Object> handleBadRequestExceptions(RuntimeException ex, ServletWebRequest request) {
 
 		Map<String, Object> response = new LinkedHashMap<>();

@@ -13,18 +13,14 @@ public class PolymerAnalyzer {
 
 	public int calculateHammingDistance(Polymer firstPolymer, Polymer secondPolymer) {
 
-		if (firstPolymer == null || secondPolymer == null) {
-			throw new IllegalArgumentException("polymers cannot be empty");
-		}
-
-		if (firstPolymer.getSequence().length() != secondPolymer.getSequence().length()) {
+		if (firstPolymer.getValue().length() != secondPolymer.getValue().length()) {
 			throw new IllegalArgumentException("the length of the polymers must be equal");
 		}
 
 		int hammingDistance = 0;
 
-		for (int i = 0; i < firstPolymer.getSequence().length(); i++) {
-			if (firstPolymer.getSequence().charAt(i) != secondPolymer.getSequence().charAt(i)) {
+		for (int i = 0; i < firstPolymer.getValue().length(); i++) {
+			if (firstPolymer.getValue().charAt(i) != secondPolymer.getValue().charAt(i)) {
 				hammingDistance++;
 			}
 		}
@@ -35,19 +31,15 @@ public class PolymerAnalyzer {
 
 	public List<Integer> calculateSubsequenceLocations(Polymer polymer, Polymer subpolymer) {
 
-		if (polymer == null || subpolymer == null) {
-			throw new IllegalArgumentException("polymers cannot be empty");
-		}
-
-		if (polymer.getSequence().length() <= subpolymer.getSequence().length()) {
+		if (polymer.getValue().length() <= subpolymer.getValue().length()) {
 			throw new IllegalArgumentException("the polymer size must be greater than the subpolymer size");
 		}
 
-		List<Integer> locations = new ArrayList<>(polymer.getSequence().length() - subpolymer.getSequence().length());
+		List<Integer> locations = new ArrayList<>(polymer.getValue().length() - subpolymer.getValue().length());
 
-		for (int i = 0; i <= polymer.getSequence().length() - subpolymer.getSequence().length(); i++) {
+		for (int i = 0; i <= polymer.getValue().length() - subpolymer.getValue().length(); i++) {
 
-			if (polymer.getSequence().substring(i, i + subpolymer.getSequence().length()).equals(subpolymer.getSequence())) {
+			if (polymer.getValue().substring(i, i + subpolymer.getValue().length()).equals(subpolymer.getValue())) {
 				locations.add(i);
 			}
 
@@ -59,49 +51,39 @@ public class PolymerAnalyzer {
 
 	public Optional<String> calculateLongestCommonSubsequence(List<Polymer> polymers) {
 
-		if (polymers == null || polymers.isEmpty()) {
-			throw new IllegalArgumentException("polymers cannot be null nor empty");
-		}
-
 		if (polymers.size() < 2) {
-			throw new IllegalArgumentException("at least two sequences are needed to compare");	
+			throw new IllegalArgumentException("at least two sequences are needed to compare");
 		}
 
-		try {
+		String firstSequence = polymers.get(0).getValue();
 
-			String firstSequence = polymers.get(0).getSequence();
+		for (int i = firstSequence.length(); i > 0; i--) {
 
-			for (int i = firstSequence.length(); i > 0; i--) {
+			for (int j = 0; j <= firstSequence.length() - i; j++) {
 
-				for (int j = 0; j <= firstSequence.length() - i; j++) {
+				String subsequence = firstSequence.substring(j, j + i);
+				int counter = 0;
 
-					String subsequence = firstSequence.substring(j, j + i);
-					int counter = 0;
+				for (int k = 1; k < polymers.size(); k++) {
 
-					for (int k = 1; k < polymers.size(); k++) {
-
-						if (polymers.get(k).getSequence().contains(subsequence)) {
-							counter++;
-						} else {
-							counter = 0;
-							break;
-						}
-
-					}
-
-					if (counter == polymers.size() - 1) {
-						return Optional.of(subsequence);
+					if (polymers.get(k).getValue().contains(subsequence)) {
+						counter++;
+					} else {
+						counter = 0;
+						break;
 					}
 
 				}
 
+				if (counter == polymers.size() - 1) {
+					return Optional.of(subsequence);
+				}
+
 			}
 
-			return Optional.empty();
-
-		} catch (NullPointerException e) {
-			throw new IllegalArgumentException("polymers cannot be null");
 		}
+
+		return Optional.empty();
 
 	}
 

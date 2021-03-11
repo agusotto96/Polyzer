@@ -1,5 +1,7 @@
 package app.data;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,26 +14,32 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public interface SequenceRepository extends JpaRepository<Sequence, Long> {
 
-	@Query(value = "select distinct sequence.tag from Sequence sequence where sequence.polymer = :polymer")
-	public Page<String> findTags(String polymer, Pageable pageable);
+	@Query(value = "select distinct sequence.tag from Sequence sequence where sequence.type = :type")
+	public Page<String> findTags(String type, Pageable pageable);
 
-	@Query(value = "select sequence from Sequence sequence where sequence.polymer = :polymer and sequence.tag = :tag")
-	public Page<Sequence> findSequences(String polymer, String tag, Pageable pageable);
+	@Query(value = "select sequence from Sequence sequence where sequence.type = :type and sequence.tag = :tag")
+	public Page<Sequence> findSequences(String type, String tag, Pageable pageable);
 
-	@Modifying
-	@Query(value = "update Sequence sequence set sequence.tag = :newTag where sequence.polymer = :polymer and sequence.tag = :tag")
-	public void updateTag(String polymer, String tag, String newTag);
+	@Query(value = "select sequence from Sequence sequence where sequence.type = :type and sequence.tag in :tags or sequence.id in :ids")
+	public List<Sequence> findSequences(String type, List<String> tags, List<Long> ids);
 
-	@Modifying
-	@Query(value = "delete from Sequence sequence where sequence.polymer = :polymer")
-	public void deleteSequences(String polymer);
+	@Query(value = "select sequence from Sequence sequence where sequence.type = :type and sequence.tag in :tags or sequence.id in :ids")
+	public Page<Sequence> findSequences(String type, List<String> tags, List<Long> ids, Pageable pageable);
 
 	@Modifying
-	@Query(value = "delete from Sequence sequence where sequence.polymer = :polymer and sequence.tag = :tag")
-	public void deleteSequences(String polymer, String tag);
+	@Query(value = "update Sequence sequence set sequence.tag = :newTag where sequence.type = :type and sequence.tag = :tag")
+	public void updateTag(String type, String tag, String newTag);
 
 	@Modifying
-	@Query(value = "delete from Sequence sequence where sequence.polymer = :polymer and sequence.tag = :tag and sequence.id = :id")
-	public void deleteSequence(String polymer, String tag, long id);
+	@Query(value = "delete from Sequence sequence where sequence.type = :type")
+	public void deleteSequences(String type);
+
+	@Modifying
+	@Query(value = "delete from Sequence sequence where sequence.type = :type and sequence.tag = :tag")
+	public void deleteSequences(String type, String tag);
+
+	@Modifying
+	@Query(value = "delete from Sequence sequence where sequence.type = :type and sequence.tag = :tag and sequence.id = :id")
+	public void deleteSequence(String type, String tag, long id);
 
 }

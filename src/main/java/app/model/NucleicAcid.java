@@ -10,9 +10,9 @@ public abstract class NucleicAcid extends Polymer {
 
 	public String getReverseComplement() {
 
-		StringBuilder builder = new StringBuilder(this.sequence.length());
+		StringBuilder builder = new StringBuilder(this.value.length());
 
-		for (char nucleotide : this.sequence.toCharArray()) {
+		for (char nucleotide : this.value.toCharArray()) {
 			builder.append(getComplementaryMonomers().get(nucleotide));
 		}
 

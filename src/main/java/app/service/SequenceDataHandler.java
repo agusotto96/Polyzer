@@ -28,25 +28,33 @@ public class SequenceDataHandler {
 		return sequenceRepository.findSequences(type, tag, pageable);
 	}
 
-	public void saveSequences(String polymer, String tag, List<String> sequences) {
-		polymerFactory.getPolymers(polymer, sequences);
-		sequenceRepository.saveAll(sequences.stream().map(sequence -> new Sequence(tag, polymer, sequence)).collect(Collectors.toList()));
+	public List<Sequence> findSequences(String type, List<String> tags, List<Long> ids) {
+		return sequenceRepository.findSequences(type, tags, ids);
+	}
+
+	public Page<Sequence> findSequences(String type, List<String> tags, List<Long> ids, Pageable pageable) {
+		return sequenceRepository.findSequences(type, tags, ids, pageable);
+	}
+
+	public void saveSequences(String type, String tag, List<String> sequences) {
+		polymerFactory.getPolymers(type, sequences);
+		sequenceRepository.saveAll(sequences.stream().map(sequence -> new Sequence(tag, type, sequence)).collect(Collectors.toList()));
 	}
 
 	public void updateTag(String type, String tag, String newTag) {
 		sequenceRepository.updateTag(type, tag, newTag);
 	}
 
-	public void deleteSequences(String polymer) {
-		sequenceRepository.deleteSequences(polymer);
+	public void deleteSequences(String type) {
+		sequenceRepository.deleteSequences(type);
 	}
 
-	public void deleteSequences(String polymer, String tag) {
-		sequenceRepository.deleteSequences(polymer, tag);
+	public void deleteSequences(String type, String tag) {
+		sequenceRepository.deleteSequences(type, tag);
 	}
 
-	public void deleteSequence(String polymer, String tag, long id) {
-		sequenceRepository.deleteSequence(polymer, tag, id);
+	public void deleteSequence(String type, String tag, long id) {
+		sequenceRepository.deleteSequence(type, tag, id);
 	}
 
 }
