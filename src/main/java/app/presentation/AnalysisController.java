@@ -12,7 +12,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,21 +24,21 @@ import app.service.PolymerFactory;
 import app.service.SequenceDataHandler;
 
 @RestController
-@RequestMapping("polymers/{type}/analyzes")
+@RequestMapping("analyzes")
 public class AnalysisController extends BaseController {
-
-	@Autowired
-	private PolymerFactory polymerFactory;
-
+	
 	@Autowired
 	private SequenceDataHandler sequenceDataHandler;
 
+	@Autowired
+	private PolymerFactory polymerFactory;
+	
 	@Autowired
 	private PolymerAnalyzer polymerAnalyzer;
 
 	@GetMapping("monomer-count")
 	Map<String, Object> getMonomerCounts(
-			@PathVariable String type, 
+			@RequestParam String type, 
 			@RequestParam(defaultValue = "") List<String> tags, 
 			@RequestParam(defaultValue = "") List<Long> ids, 
 			@RequestParam int page, 
@@ -65,7 +64,7 @@ public class AnalysisController extends BaseController {
 
 	@GetMapping("clump-forming-patterns")
 	Map<String, Object> getClumpFormingPatterns(
-			@PathVariable String type, 
+			@RequestParam String type, 
 			@RequestParam(defaultValue = "") List<String> tags, 
 			@RequestParam(defaultValue = "") List<Long> ids, 
 			@RequestParam int patternSize, 
@@ -94,7 +93,7 @@ public class AnalysisController extends BaseController {
 
 	@GetMapping("longest-common-subsequence")
 	Optional<String> calculateLongestCommonSubsequence(
-			@PathVariable String type, 
+			@RequestParam String type, 
 			@RequestParam(defaultValue = "") List<String> tags, 
 			@RequestParam(defaultValue = "") List<Long> ids) {
 
@@ -107,7 +106,7 @@ public class AnalysisController extends BaseController {
 	
 	@GetMapping("reverse-complement")
 	Map<String, Object> getReverseComplement(
-			@PathVariable String type, 
+			@RequestParam String type, 
 			@RequestParam(defaultValue = "") List<String> tags, 
 			@RequestParam(defaultValue = "") List<Long> ids, 
 			@RequestParam int page, 
