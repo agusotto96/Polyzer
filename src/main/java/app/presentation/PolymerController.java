@@ -3,7 +3,6 @@ package app.presentation;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,9 +22,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import app.model.NucleicAcid;
-import app.model.Polymer;
-import app.service.PolymerDataHandler;
+import app.data.Sequence;
+import app.service.SequenceDataHandler;
 import app.service.PolymerFactory;
 
 @RestController
@@ -33,128 +31,97 @@ import app.service.PolymerFactory;
 class PolymerController {
 
 	@Autowired
-	private PolymerDataHandler polymerDataHandler;
+	private SequenceDataHandler sequenceDataHandler;
 
 	@GetMapping()
-	Set<String> findTypes() {
+	Set<String> findPolymers() {
 		return PolymerFactory.POLYMERS;
 	}
 
-	@GetMapping("{type}")
-	Map<String, Object> findTags(@PathVariable String type, @RequestParam int page, @RequestParam int size) {
+	@GetMapping("{polymer}/tags")
+	Map<String, Object> findTags(@PathVariable String polymer, @RequestParam int page, @RequestParam int size) {
 
 		Pageable pageable = PageRequest.of(page, size, Sort.by("tag"));
-		Page<String> tags = polymerDataHandler.findTags(type, pageable);
+		Page<String> tags = sequenceDataHandler.findTags(polymer, pageable);
 
 		if (tags.isEmpty()) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "tags not found");
 		}
 
-		return formatPages("tags", tags);
+		return formatPage("tags", tags);
 
 	}
 
-	@GetMapping("{type}/{tag}")
-	Map<String, Object> findIds(@PathVariable String type, @PathVariable String tag, @RequestParam int page, @RequestParam int size) {
+	@GetMapping("{polymer}/tags/{tag}/sequences")
+	Map<String, Object> findSequences(@PathVariable String polymer, @PathVariable String tag, @RequestParam int page, @RequestParam int size) {
 
 		Pageable pageable = PageRequest.of(page, size, Sort.by("id"));
-		Page<Long> ids = polymerDataHandler.findIds(type, tag, pageable);
+		Page<Sequence> sequences = sequenceDataHandler.findSequences(polymer, tag, pageable);
 
-		if (ids.getContent().isEmpty()) {
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "polymer not found");
+		if (sequences.getContent().isEmpty()) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "sequences not found");
 		}
 
-		return formatPages("ids", ids);
+		return formatPage("ids", sequences);
 
 	}
 
-	@GetMapping("{type}/{tag}/{id}")
-	Optional<String> findPolymer(@PathVariable String type, @PathVariable String tag, @PathVariable long id) {
+	@PostMapping("{polymer}/tags/{tag}/sequences")
+	void saveSequences(@PathVariable String polymer, @PathVariable String tag, @RequestBody List<String> sequences) {
 
-		Polymer polymer = polymerDataHandler.findPolymer(type, tag, id)
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "polymer not found"));
+		if (tag.isBlank()) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "invalid tag");
+		}
 
-		return Optional.of(polymer.getSequence());
-
-	}
-
-	@GetMapping("{type}/{tag}/{id}/monomer-count")
-	Map<Character, Integer> getMonomerCount(@PathVariable String type, @PathVariable String tag, @PathVariable long id) {
-
-		Polymer polymer = polymerDataHandler.findPolymer(type, tag, id)
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "polymer not found"));
-
-		return polymer.getMonomerCount();
+		sequenceDataHandler.saveSequences(polymer, tag, sequences);
 
 	}
 
-	@GetMapping("{type}/{tag}/{id}/clump-forming-patterns")
-	Set<String> getClumpFormingPatterns(@PathVariable String type, @PathVariable String tag, @PathVariable long id, 
-			@RequestParam int size, @RequestParam int times, @RequestParam int range) {
+	@PutMapping("{polymer}/tags/{tag}/sequences")
+	void updateTag(@PathVariable String polymer, @PathVariable String tag, @RequestBody Map<String, String> newTag) {
 
-		Polymer polymer = polymerDataHandler.findPolymer(type, tag, id)
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "polymer not found"));
+		if (!newTag.containsKey("tag")) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "missing tag");
+		}
 
-		return polymer.getClumpFormingPatterns(size, times, range);
+		if (newTag.get("tag").isBlank()) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "invalid tag");
+		}
 
-	}
-
-	@GetMapping("{type}/{tag}/{id}/reverse-complement")
-	Optional<String> getReverseComplement(@PathVariable String type, @PathVariable String tag, @PathVariable long id) {
-
-		NucleicAcid nucleicAcid = polymerDataHandler.findNucleicAcid(type, tag, id)
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "polymer not found"));
-
-		return Optional.of(nucleicAcid.getReverseComplement());
+		sequenceDataHandler.updateTag(polymer, tag, newTag.get("tag"));
 
 	}
 
-	@PostMapping("{type}/{tag}")
-	void savePolymers(@PathVariable String type, @PathVariable String tag, @RequestBody List<String> sequences) {
+	@DeleteMapping("{polymer}/tags")
+	void deleteSequences(@PathVariable String type) {
 
-		polymerDataHandler.savePolymers(type, tag, sequences);
+		sequenceDataHandler.deleteSequences(type);
 
 	}
 
-	@PutMapping("{type}/{tag}")
-	void updateTag(@PathVariable String type, @PathVariable String tag, @RequestBody String newTag) {
-		polymerDataHandler.updateTag(type, tag, newTag);
+	@DeleteMapping("{polymer}/tags/{tag}/sequences")
+	void deleteSequences(@PathVariable String polymer, @PathVariable String tag) {
+
+		sequenceDataHandler.deleteSequences(polymer, tag);
+
 	}
 
-	@PutMapping("{type}/{tag}/{id}")
-	void updatePolymer(@PathVariable String type, @PathVariable String tag, @PathVariable long id, @RequestBody String newSequence) {
-		polymerDataHandler.updatePolymer(type, tag, id, newSequence);
+	@DeleteMapping("{polymer}/tags/{tag}/sequences/{sequence}")
+	void deleteSequences(@PathVariable String polymer, @PathVariable String tag, @PathVariable long id) {
+
+		sequenceDataHandler.deleteSequence(polymer, tag, id);
+
 	}
 
-	@DeleteMapping()
-	void deletePolymers() {
-		polymerDataHandler.deletePolymers();
-	}
+	private Map<String, Object> formatPage(String content, Page<?> page) {
 
-	@DeleteMapping("{type}")
-	void deletePolymers(@PathVariable String type) {
-		polymerDataHandler.deletePolymers(type);
-	}
+		Map<String, Object> formattedPage = new HashMap<>(3);
 
-	@DeleteMapping("{type}/{tag}")
-	void deletePolymers(@PathVariable String type, @PathVariable String tag) {
-		polymerDataHandler.deletePolymers(type, tag);
-	}
+		formattedPage.put(content, page.getContent());
+		formattedPage.put("current-page", page.getNumber());
+		formattedPage.put("total-pages", page.getTotalPages());
 
-	@DeleteMapping("{type}/{tag}/{id}")
-	void deletePolymer(@PathVariable String type, @PathVariable String tag, @PathVariable long id) {
-		polymerDataHandler.deletePolymer(type, tag, id);
-	}
-
-	private Map<String, Object> formatPages(String content, Page<?> pages) {
-
-		Map<String, Object> result = new HashMap<>(3);
-
-		result.put("totalPages", pages.getTotalPages());
-		result.put("number", pages.getNumber());
-		result.put(content, pages.getContent());
-
-		return result;
+		return formattedPage;
 
 	}
 

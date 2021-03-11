@@ -14,17 +14,17 @@ public class Sequence {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	private String tag;
-	private String type;
+	private String polymer;
 	private String value;
 
 	public Sequence() {
 		super();
 	}
 
-	public Sequence(String tag, String type, String sequence) {
+	public Sequence(String tag, String polymer, String sequence) {
 		super();
 		this.tag = tag;
-		this.type = type;
+		this.polymer = polymer;
 		this.value = sequence;
 		vaidateSequence();
 	}
@@ -35,8 +35,8 @@ public class Sequence {
 			throw new IllegalArgumentException("tag cannot be empty");
 		}
 
-		if (this.type == null || this.type.isBlank()) {
-			throw new IllegalArgumentException("type cannot be empty");
+		if (this.polymer == null || this.polymer.isBlank()) {
+			throw new IllegalArgumentException("polymer cannot be empty");
 		}
 
 		if (this.value == null || this.value.isBlank()) {
@@ -53,8 +53,8 @@ public class Sequence {
 		return tag;
 	}
 
-	public String getType() {
-		return type;
+	public String getPolymer() {
+		return polymer;
 	}
 
 	public String getValue() {
