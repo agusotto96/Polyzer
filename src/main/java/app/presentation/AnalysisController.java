@@ -16,46 +16,42 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import app.data.Sequence;
-import app.model.NucleicAcid;
-import app.model.Polymer;
-import app.service.PolymerAnalyzer;
-import app.service.PolymerFactory;
-import app.service.SequenceDataHandler;
+import app.data.NucleicAcidDTO;
+import app.data.PolymerDTO;
+import app.data.PolymerDataHandler;
+import app.domain.NucleicAcidType;
+import app.domain.Polymer;
+import app.domain.PolymerAnalyzer;
+import app.domain.PolymerType;
 
 @RestController
 @RequestMapping("analyzes")
 public class AnalysisController extends BaseController {
-	
-	@Autowired
-	private SequenceDataHandler sequenceDataHandler;
 
 	@Autowired
-	private PolymerFactory polymerFactory;
-	
+	private PolymerDataHandler polymerDataHandler;
+
 	@Autowired
 	private PolymerAnalyzer polymerAnalyzer;
 
 	@GetMapping("monomer-count")
 	Map<String, Object> getMonomerCounts(
-			@RequestParam String type, 
+			@RequestParam PolymerType type, 
 			@RequestParam(defaultValue = "") List<String> tags, 
 			@RequestParam(defaultValue = "") List<Long> ids, 
 			@RequestParam int page, 
 			@RequestParam int size) {
 
 		Pageable pageable = PageRequest.of(page, size, Sort.by("tag", "id"));
-		Page<Sequence> sequences = sequenceDataHandler.findSequences(type, tags, ids, pageable);
+		Page<PolymerDTO> sequences = polymerDataHandler.findPolymers(type, tags, ids, pageable);
 
 		Page<Object> counts = sequences.map(sequence -> {
-			
-			Polymer polymer = polymerFactory.getPolymer(sequence.getType(), sequence.getValue());
-			
+
 			var count = new HashMap<>();
-			count.put(sequence.getId(), polymer.getMonomerCount());
-			
+			count.put(sequence.getId(), sequence.getPolymer().getMonomerCount());
+
 			return count;
-			
+
 		});
 
 		return formatPage("monomer-counts", counts);
@@ -64,24 +60,22 @@ public class AnalysisController extends BaseController {
 
 	@GetMapping("clump-forming-patterns")
 	Map<String, Object> getClumpFormingPatterns(
-			@RequestParam String type, 
+			@RequestParam PolymerType type, 
 			@RequestParam(defaultValue = "") List<String> tags, 
 			@RequestParam(defaultValue = "") List<Long> ids, 
 			@RequestParam int patternSize, 
-			@RequestParam int patternTimes, 
+			@RequestParam int patternTimes,
 			@RequestParam int clumpSize, 
-			@RequestParam int page,
+			@RequestParam int page, 
 			@RequestParam int size) {
 
 		Pageable pageable = PageRequest.of(page, size, Sort.by("tag", "id"));
-		Page<Sequence> sequences = sequenceDataHandler.findSequences(type, tags, ids, pageable);
+		Page<PolymerDTO> sequences = polymerDataHandler.findPolymers(type, tags, ids, pageable);
 
 		Page<Object> sequencesPatterns = sequences.map(sequence -> {
 
-			Polymer polymer = polymerFactory.getPolymer(sequence.getType(), sequence.getValue());
-
 			var sequencePatterns = new HashMap<>();
-			sequencePatterns.put(sequence.getId(), polymer.getClumpFormingPatterns(patternSize, patternTimes, clumpSize));
+			sequencePatterns.put(sequence.getId(), sequence.getPolymer().getClumpFormingPatterns(patternSize, patternTimes, clumpSize));
 
 			return sequencePatterns;
 
@@ -93,34 +87,32 @@ public class AnalysisController extends BaseController {
 
 	@GetMapping("longest-common-subsequence")
 	Optional<String> calculateLongestCommonSubsequence(
-			@RequestParam String type, 
+			@RequestParam PolymerType type, 
 			@RequestParam(defaultValue = "") List<String> tags, 
 			@RequestParam(defaultValue = "") List<Long> ids) {
 
-		List<Sequence> sequences = sequenceDataHandler.findSequences(type, tags, ids);
-		List<Polymer> polymers = polymerFactory.getPolymers(type, sequences.stream().map(s -> s.getValue()).collect(Collectors.toList()));
+		List<PolymerDTO> sequences = polymerDataHandler.findPolymers(type, tags, ids);
+		List<Polymer> polymers = sequences.stream().map(sequence -> sequence.getPolymer()).collect(Collectors.toList());
 
 		return polymerAnalyzer.calculateLongestCommonSubsequence(polymers);
 
 	}
-	
+
 	@GetMapping("reverse-complement")
 	Map<String, Object> getReverseComplement(
-			@RequestParam String type, 
+			@RequestParam NucleicAcidType type, 
 			@RequestParam(defaultValue = "") List<String> tags, 
 			@RequestParam(defaultValue = "") List<Long> ids, 
 			@RequestParam int page, 
 			@RequestParam int size) {
 
 		Pageable pageable = PageRequest.of(page, size, Sort.by("tag", "id"));
-		Page<Sequence> sequences = sequenceDataHandler.findSequences(type, tags, ids, pageable);
+		Page<NucleicAcidDTO> sequences = polymerDataHandler.findNucleicAcids(type, tags, ids, pageable);
 
 		Page<Object> reverseComplements = sequences.map(sequence -> {
 
-			NucleicAcid nucleicAcid = polymerFactory.getNucleicAcid(sequence.getType(), sequence.getValue());
-
 			var reverseComplement = new HashMap<>();
-			reverseComplement.put(sequence.getId(), nucleicAcid.getReverseComplement());
+			reverseComplement.put(sequence.getId(), sequence.getNucleicAcid().getReverseComplement());
 
 			return reverseComplement;
 

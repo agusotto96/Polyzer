@@ -1,4 +1,4 @@
-package app.model;
+package app.domain;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -10,7 +10,7 @@ public abstract class Polymer {
 
 	String value;
 
-	public Polymer(String value) {
+	Polymer(String value) {
 		super();
 		this.value = value;
 		this.validatePolymer();
@@ -64,23 +64,13 @@ public abstract class Polymer {
 	private void validatePolymer() {
 
 		if (this.value == null || this.value.isBlank()) {
-			throw new InvalidPolymerValueException("sequence cannot be empty");
+			throw new IllegalArgumentException("sequence cannot be empty");
 		}
 
 		for (char monomer : this.value.toCharArray()) {
 			if (!getValidMonomers().contains(monomer)) {
-				throw new InvalidPolymerValueException("sequence contains invalid monomer");
+				throw new IllegalArgumentException("sequence contains invalid monomer");
 			}
-		}
-
-	}
-
-	public class InvalidPolymerValueException extends RuntimeException {
-
-		private static final long serialVersionUID = -6970237712012706976L;
-
-		public InvalidPolymerValueException(String errorMessage) {
-			super(errorMessage);
 		}
 
 	}

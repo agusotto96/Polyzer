@@ -1,4 +1,4 @@
-package app.model;
+package app.domain;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -6,7 +6,7 @@ import java.util.Set;
 
 public class DNA extends NucleicAcid {
 
-	public DNA(String sequence) {
+	DNA(String sequence) {
 		super(sequence);
 	}
 

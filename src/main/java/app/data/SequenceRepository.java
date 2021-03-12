@@ -12,34 +12,34 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 @Transactional
-public interface SequenceRepository extends JpaRepository<Sequence, Long> {
+interface SequenceRepository extends JpaRepository<Sequence, Long> {
 
 	@Query(value = "select distinct sequence.tag from Sequence sequence where sequence.type = :type")
-	public Page<String> findTags(String type, Pageable pageable);
+	Page<String> findTags(String type, Pageable pageable);
 
 	@Query(value = "select sequence from Sequence sequence where sequence.type = :type and sequence.tag = :tag")
-	public Page<Sequence> findSequences(String type, String tag, Pageable pageable);
+	Page<Sequence> findSequences(String type, String tag, Pageable pageable);
 
 	@Query(value = "select sequence from Sequence sequence where sequence.type = :type and sequence.tag in :tags or sequence.id in :ids")
-	public List<Sequence> findSequences(String type, List<String> tags, List<Long> ids);
+	List<Sequence> findSequences(String type, List<String> tags, List<Long> ids);
 
 	@Query(value = "select sequence from Sequence sequence where sequence.type = :type and sequence.tag in :tags or sequence.id in :ids")
-	public Page<Sequence> findSequences(String type, List<String> tags, List<Long> ids, Pageable pageable);
+	Page<Sequence> findSequences(String type, List<String> tags, List<Long> ids, Pageable pageable);
 
 	@Modifying
 	@Query(value = "update Sequence sequence set sequence.tag = :newTag where sequence.type = :type and sequence.tag = :tag")
-	public void updateTag(String type, String tag, String newTag);
+	void updateTag(String type, String tag, String newTag);
 
 	@Modifying
 	@Query(value = "delete from Sequence sequence where sequence.type = :type")
-	public void deleteSequences(String type);
+	void deleteSequences(String type);
 
 	@Modifying
 	@Query(value = "delete from Sequence sequence where sequence.type = :type and sequence.tag = :tag")
-	public void deleteSequences(String type, String tag);
+	void deleteSequences(String type, String tag);
 
 	@Modifying
 	@Query(value = "delete from Sequence sequence where sequence.type = :type and sequence.tag = :tag and sequence.id = :id")
-	public void deleteSequence(String type, String tag, long id);
+	void deleteSequence(String type, String tag, long id);
 
 }

@@ -1,10 +1,10 @@
-package app.model;
+package app.domain;
 
 import java.util.Set;
 
 public class Protein extends Polymer {
 
-	public Protein(String sequence) {
+	Protein(String sequence) {
 		super(sequence);
 	}
 

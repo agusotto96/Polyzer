@@ -1,8 +1,8 @@
 package app.presentation;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -21,27 +21,32 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import app.data.Sequence;
-import app.service.PolymerFactory;
-import app.service.SequenceDataHandler;
+import app.data.PolymerDTO;
+import app.data.PolymerDataHandler;
+import app.domain.PolymerType;
 
 @RestController
-@RequestMapping("polymers")
-class typeController extends BaseController {
+@RequestMapping()
+class PolymerController extends BaseController {
+
+	private final String POLYMERS_PATH = "polymers";
+	private final String TAGS_PATH = "polymers/{type}/tags";
+	private final String SEQUENCES_PATH = "polymers/{type}/tags/{tag}/sequences";
+	private final String SEQUENCE_PATH = "polymers/{type}/tags/{tag}/sequences/{id}";
 
 	@Autowired
-	private SequenceDataHandler sequenceDataHandler;
+	private PolymerDataHandler polymerDataHandler;
 
-	@GetMapping()
-	Set<String> findtypes() {
-		return Set.of(PolymerFactory.DNA, PolymerFactory.RNA, PolymerFactory.PROTEIN);
+	@GetMapping(POLYMERS_PATH)
+	PolymerType[] findtypes() {
+		return PolymerType.values();
 	}
 
-	@GetMapping("{type}/tags")
-	Map<String, Object> findTags(@PathVariable String type, @RequestParam int page, @RequestParam int size) {
+	@GetMapping(TAGS_PATH)
+	Map<String, Object> findTags(@PathVariable PolymerType type, @RequestParam int page, @RequestParam int size) {
 
 		Pageable pageable = PageRequest.of(page, size, Sort.by("tag"));
-		Page<String> tags = sequenceDataHandler.findTags(type, pageable);
+		Page<String> tags = polymerDataHandler.findTags(type, pageable);
 
 		if (tags.isEmpty()) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "tags not found");
@@ -51,33 +56,41 @@ class typeController extends BaseController {
 
 	}
 
-	@GetMapping("{type}/tags/{tag}/sequences")
-	Map<String, Object> findSequences(@PathVariable String type, @PathVariable String tag, @RequestParam int page, @RequestParam int size) {
+	@GetMapping(SEQUENCES_PATH)
+	Map<String, Object> findSequences(@PathVariable PolymerType type, @PathVariable String tag, @RequestParam int page, @RequestParam int size) {
 
 		Pageable pageable = PageRequest.of(page, size, Sort.by("id"));
-		Page<Sequence> sequences = sequenceDataHandler.findSequences(type, tag, pageable);
+		Page<PolymerDTO> sequences = polymerDataHandler.findPolymers(type, tag, pageable);
 
 		if (sequences.getContent().isEmpty()) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "sequences not found");
 		}
 
-		return formatPage("sequences", sequences);
+		return formatPage("sequences", sequences.map(sequence -> formatDTO(sequence)));
 
 	}
 
-	@PostMapping("{type}/tags/{tag}/sequences")
-	void saveSequences(@PathVariable String type, @PathVariable String tag, @RequestBody List<String> sequences) {
+	@PostMapping(SEQUENCES_PATH)
+	void saveSequences(@PathVariable PolymerType type, @PathVariable String tag, @RequestBody List<String> sequences) {
 
 		if (tag.isBlank()) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "invalid tag");
 		}
 
-		sequenceDataHandler.saveSequences(type, tag, sequences);
+		if (sequences.isEmpty()) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "at least one valid sequence must be provided");
+		}
+
+		try {
+			polymerDataHandler.savePolymers(type, tag, sequences);
+		} catch (IllegalArgumentException e) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+		}
 
 	}
 
-	@PutMapping("{type}/tags/{tag}/sequences")
-	void updateTag(@PathVariable String type, @PathVariable String tag, @RequestBody Map<String, String> newTag) {
+	@PutMapping(SEQUENCES_PATH)
+	void updateTag(@PathVariable PolymerType type, @PathVariable String tag, @RequestBody Map<String, String> newTag) {
 
 		if (!newTag.containsKey("tag")) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "missing tag");
@@ -87,24 +100,30 @@ class typeController extends BaseController {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "invalid tag");
 		}
 
-		sequenceDataHandler.updateTag(type, tag, newTag.get("tag"));
+		polymerDataHandler.updateTag(type, tag, newTag.get("tag"));
 
 	}
 
-	@DeleteMapping("{type}/tags")
-	void deleteSequences(@PathVariable String type) {
-		sequenceDataHandler.deleteSequences(type);
+	@DeleteMapping(TAGS_PATH)
+	void deleteSequences(@PathVariable PolymerType type) {
+		polymerDataHandler.deletePolymers(type);
 	}
 
-	@DeleteMapping("{type}/tags/{tag}/sequences")
-	void deleteSequences(@PathVariable String type, @PathVariable String tag) {
-		sequenceDataHandler.deleteSequences(type, tag);
+	@DeleteMapping(SEQUENCES_PATH)
+	void deleteSequences(@PathVariable PolymerType type, @PathVariable String tag) {
+		polymerDataHandler.deletePolymers(type, tag);
 
 	}
 
-	@DeleteMapping("{type}/tags/{tag}/sequences/{id}")
-	void deleteSequences(@PathVariable String type, @PathVariable String tag, @PathVariable long id) {
-		sequenceDataHandler.deleteSequence(type, tag, id);
+	@DeleteMapping(SEQUENCE_PATH)
+	void deleteSequences(@PathVariable PolymerType type, @PathVariable String tag, @PathVariable long id) {
+		polymerDataHandler.deletePolymers(type, tag, id);
+	}
+
+	private Map<Long, String> formatDTO(PolymerDTO DTO) {
+		Map<Long, String> formattedDTO = new HashMap<>();
+		formattedDTO.put(DTO.getId(), DTO.getPolymer().getValue());
+		return formattedDTO;
 	}
 
 }

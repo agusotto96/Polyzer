@@ -1,12 +1,10 @@
-package app.service;
+package app.domain;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
-
-import app.model.Polymer;
 
 @Service
 public class PolymerAnalyzer {
