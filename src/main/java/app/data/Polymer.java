@@ -7,25 +7,25 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "SEQUENCES")
-class Sequence {
+@Table(name = "POLYMERS")
+public class Polymer {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	private String tag;
 	private String type;
-	private String value;
+	private String sequence;
 
-	Sequence() {
+	Polymer() {
 		super();
 	}
 
-	Sequence(String tag, String type, String sequence) {
+	Polymer(String tag, String type, String sequence) {
 		super();
 		this.tag = tag;
 		this.type = type;
-		this.value = sequence;
+		this.sequence = sequence;
 		vaidateSequence();
 	}
 
@@ -39,26 +39,26 @@ class Sequence {
 			throw new IllegalArgumentException("type cannot be empty");
 		}
 
-		if (this.value == null || this.value.isBlank()) {
-			throw new IllegalArgumentException("value cannot be empty");
+		if (this.sequence == null || this.sequence.isBlank()) {
+			throw new IllegalArgumentException("sequence cannot be empty");
 		}
 
 	}
 
-	Long getId() {
+	public Long getId() {
 		return id;
 	}
 
-	String getTag() {
+	public String getTag() {
 		return tag;
 	}
 
-	String getType() {
+	public String getType() {
 		return type;
 	}
 
-	String getValue() {
-		return value;
+	public String getSequence() {
+		return sequence;
 	}
 
 }

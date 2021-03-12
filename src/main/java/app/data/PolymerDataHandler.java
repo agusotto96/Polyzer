@@ -1,84 +1,97 @@
 package app.data;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
 
-import app.domain.NucleicAcid;
-import app.domain.NucleicAcidType;
-import app.domain.Polymer;
-import app.domain.PolymerFactory;
-import app.domain.PolymerType;
-
-@Service
 public class PolymerDataHandler {
 
 	@Autowired
-	private SequenceRepository sequenceRepository;
+	private PolymerRepository polymerRepository;
 
 	@Autowired
-	private PolymerFactory polymerFactory;
+	private SequenceValidator sequenceValidator;
 
-	public Page<String> findTags(PolymerType type, Pageable pageable) {
-		return sequenceRepository.findTags(type.name(), pageable);
+	public List<String> getTypes() {
+		return Arrays.stream(PolymerType.values()).map(type -> type.name()).collect(Collectors.toList());
 	}
 
-	public Page<PolymerDTO> findPolymers(PolymerType type, String tag, Pageable pageable) {
-		return sequenceRepository.findSequences(type.name(), tag, pageable).map(sequence -> getPolymerDTO(sequence));
+	public Page<String> findTags(String type, Pageable pageable) {
+		return polymerRepository.findTags(type, pageable);
 	}
 
-	public List<PolymerDTO> findPolymers(PolymerType type, List<String> tags, List<Long> ids) {
-		List<Sequence> sequences = sequenceRepository.findSequences(type.name(), tags, ids);
-		return sequences.stream().map(sequence -> getPolymerDTO(sequence)).collect(Collectors.toList());
+	public Page<Polymer> findPolymers(String type, String tag, Pageable pageable) {
+		return polymerRepository.findPolymers(type, tag, pageable);
 	}
 
-	public Page<PolymerDTO> findPolymers(PolymerType type, List<String> tags, List<Long> ids, Pageable pageable) {
-		return sequenceRepository.findSequences(type.name(), tags, ids, pageable).map(sequence -> getPolymerDTO(sequence));
+	public List<Polymer> findPolymers(String type, List<String> tags, List<Long> ids) {
+		return polymerRepository.findPolymers(type, tags, ids);
 	}
 
-	public Page<NucleicAcidDTO> findNucleicAcids(NucleicAcidType type, List<String> tags, List<Long> ids, Pageable pageable) {
-		return sequenceRepository.findSequences(type.name(), tags, ids, pageable).map(sequence -> getNucleicAcidDTO(sequence));
+	public Page<Polymer> findPolymers(String type, List<String> tags, List<Long> ids, Pageable pageable) {
+		return polymerRepository.findPolymers(type, tags, ids, pageable);
 	}
 
-	public void savePolymers(PolymerType type, String tag, List<String> sequences) {
-		polymerFactory.getPolymers(type, sequences);
-		sequenceRepository.saveAll(sequences.stream().map(sequence -> new Sequence(tag, type.name(), sequence)).collect(Collectors.toList()));
+	public Page<Polymer> findDNAs(List<String> tags, List<Long> ids, Pageable pageable) {
+		return polymerRepository.findPolymers(PolymerType.DNA.name(), tags, ids, pageable);
 	}
 
-	public void updateTag(PolymerType type, String tag, String newTag) {
-		sequenceRepository.updateTag(type.name(), tag, newTag);
+	public Page<Polymer> findRNAs(List<String> tags, List<Long> ids, Pageable pageable) {
+		return polymerRepository.findPolymers(PolymerType.RNA.name(), tags, ids, pageable);
 	}
 
-	public void deletePolymers(PolymerType type) {
-		sequenceRepository.deleteSequences(type.name());
+	public void saveDNAs(String tag, List<String> sequences) {
+
+		sequences.forEach(sequence -> sequenceValidator.validateDNASequence(sequence));
+
+		List<Polymer> polymers = sequences.stream().map(sequence -> new Polymer(tag, PolymerType.DNA.name(), sequence)).collect(Collectors.toList());
+
+		polymerRepository.saveAll(polymers);
+
 	}
 
-	public void deletePolymers(PolymerType type, String tag) {
-		sequenceRepository.deleteSequences(type.name(), tag);
+	public void saveRNAs(String tag, List<String> sequences) {
+
+		sequences.forEach(sequence -> sequenceValidator.validateRNASequence(sequence));
+
+		List<Polymer> polymers = sequences.stream().map(sequence -> new Polymer(tag, PolymerType.RNA.name(), sequence)).collect(Collectors.toList());
+
+		polymerRepository.saveAll(polymers);
+
 	}
 
-	public void deletePolymers(PolymerType type, String tag, long id) {
-		sequenceRepository.deleteSequence(type.name(), tag, id);
+	public void saveProteins(String tag, List<String> sequences) {
+
+		sequences.forEach(sequence -> sequenceValidator.validateProteinSequence(sequence));
+
+		List<Polymer> polymers = sequences.stream().map(sequence -> new Polymer(tag, PolymerType.PROTEIN.name(), sequence)).collect(Collectors.toList());
+
+		polymerRepository.saveAll(polymers);
+
 	}
 
-	private PolymerDTO getPolymerDTO(Sequence sequence) {
-		return new PolymerDTO(sequence.getId(), getPolymer(sequence));
+	public void updateTag(String type, String tag, String string) {
+		polymerRepository.updateTag(type, tag, tag);
 	}
 
-	private Polymer getPolymer(Sequence sequence) {
-		return polymerFactory.getPolymer(PolymerType.valueOf(sequence.getType()), sequence.getValue());
+	public void deletePolymers(String type) {
+		polymerRepository.deletePolymers(type);
 	}
 
-	private NucleicAcidDTO getNucleicAcidDTO(Sequence sequence) {
-		return new NucleicAcidDTO(sequence.getId(), getNucleicAcid(sequence));
+	public void deletePolymers(String type, String tag) {
+		polymerRepository.deletePolymers(type, tag);
 	}
 
-	private NucleicAcid getNucleicAcid(Sequence sequence) {
-		return polymerFactory.getNucleicAcid(NucleicAcidType.valueOf(sequence.getType()), sequence.getValue());
+	public void deletePolymers(String type, String tag, long id) {
+		polymerRepository.deletePolymers(type, tag, id);
 	}
 
+}
+
+enum PolymerType {
+	DNA, RNA, PROTEIN
 }
