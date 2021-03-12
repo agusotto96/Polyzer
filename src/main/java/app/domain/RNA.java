@@ -26,6 +26,7 @@ public class RNA extends NucleicAcid {
 		complementaryNucleotides.put(Nucleotide.URACIL, Nucleotide.ADENINE);
 
 		return complementaryNucleotides;
+
 	}
 
 }

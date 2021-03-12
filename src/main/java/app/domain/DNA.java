@@ -26,6 +26,7 @@ public class DNA extends NucleicAcid {
 		complementaryNucleotides.put(Nucleotide.THYMINE, Nucleotide.ADENINE);
 
 		return complementaryNucleotides;
+
 	}
 
 }

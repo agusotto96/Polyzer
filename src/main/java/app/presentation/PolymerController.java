@@ -112,7 +112,6 @@ class PolymerController extends BaseController {
 	@DeleteMapping(SEQUENCES_PATH)
 	void deleteSequences(@PathVariable PolymerType type, @PathVariable String tag) {
 		polymerDataHandler.deletePolymers(type, tag);
-
 	}
 
 	@DeleteMapping(SEQUENCE_PATH)
@@ -121,9 +120,12 @@ class PolymerController extends BaseController {
 	}
 
 	private Map<Long, String> formatDTO(PolymerDTO DTO) {
+
 		Map<Long, String> formattedDTO = new HashMap<>();
 		formattedDTO.put(DTO.getId(), DTO.getPolymer().getValue());
+
 		return formattedDTO;
+
 	}
 
 }
