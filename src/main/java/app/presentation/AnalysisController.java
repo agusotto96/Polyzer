@@ -6,16 +6,17 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import app.data.Polymer;
 import app.data.PolymerDataHandler;
@@ -31,11 +32,14 @@ public class AnalysisController {
 	private final String DNA_REVERSE_COMPLEMENT_PATH = "polymers/DNA/analyzes/reverse-complement";
 	private final String RNA_REVERSE_COMPLEMENT_PATH = "polymers/RNA/analyzes/longest-common-subsequence";
 
-	@Autowired
 	private PolymerDataHandler polymerDataHandler;
-
-	@Autowired
 	private SequenceAnalyzer sequenceAnalyzer;
+
+	AnalysisController(PolymerDataHandler polymerDataHandler, SequenceAnalyzer sequenceAnalyzer) {
+		super();
+		this.polymerDataHandler = polymerDataHandler;
+		this.sequenceAnalyzer = sequenceAnalyzer;
+	}
 
 	@GetMapping(MONOMER_COUNT_PATH)
 	Map<String, Object> getMonomerCounts(
@@ -96,7 +100,17 @@ public class AnalysisController {
 
 		List<Polymer> polymers = polymerDataHandler.findPolymers(type, tags, ids);
 
-		return sequenceAnalyzer.calculateLongestCommonSubsequence(polymers.stream().map(polymer -> polymer.getSequence()).collect(Collectors.toList()));
+		if (polymers.isEmpty()) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "sequences not found");
+		}
+
+		List<String> sequences = polymers.stream().map(polymer -> polymer.getSequence()).collect(Collectors.toList());
+
+		try {
+			return sequenceAnalyzer.calculateLongestCommonSubsequence(sequences);
+		} catch (IllegalArgumentException e) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+		}
 
 	}
 
