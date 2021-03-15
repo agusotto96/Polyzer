@@ -20,25 +20,23 @@ import org.springframework.web.server.ResponseStatusException;
 
 import app.data.Polymer;
 import app.data.PolymerDataHandler;
-import app.domain.SequenceAnalyzer;
+import app.domain.PolymerAnalyzer;
 
 @RestController
 @RequestMapping()
-public class AnalysisController {
+public class PolymerAnalysisController {
 
 	private final String MONOMER_COUNT_PATH = "polymers/{type}/analyzes/monomer-count";
 	private final String CLUMP_FORMING_PATTERNS_PATH = "polymers/{type}/analyzes/clump-forming-patterns";
 	private final String LONGEST_COMMON_SUBSEQUENCE_PATH = "polymers/{type}/analyzes/longest-common-subsequence";
-	private final String DNA_REVERSE_COMPLEMENT_PATH = "polymers/DNA/analyzes/reverse-complement";
-	private final String RNA_REVERSE_COMPLEMENT_PATH = "polymers/RNA/analyzes/longest-common-subsequence";
 
 	private PolymerDataHandler polymerDataHandler;
-	private SequenceAnalyzer sequenceAnalyzer;
+	private PolymerAnalyzer polymerAnalyzer;
 
-	AnalysisController(PolymerDataHandler polymerDataHandler, SequenceAnalyzer sequenceAnalyzer) {
+	PolymerAnalysisController(PolymerDataHandler polymerDataHandler, PolymerAnalyzer sequenceAnalyzer) {
 		super();
 		this.polymerDataHandler = polymerDataHandler;
-		this.sequenceAnalyzer = sequenceAnalyzer;
+		this.polymerAnalyzer = sequenceAnalyzer;
 	}
 
 	@GetMapping(MONOMER_COUNT_PATH)
@@ -55,7 +53,7 @@ public class AnalysisController {
 		Page<Object> counts = polymers.map(polymer -> {
 
 			var count = new HashMap<>();
-			count.put(polymer.getId(), sequenceAnalyzer.getMonomerCount(polymer.getSequence()));
+			count.put(polymer.getId(), polymerAnalyzer.getMonomerCount(polymer.getSequence()));
 
 			return count;
 
@@ -82,7 +80,7 @@ public class AnalysisController {
 		Page<Object> sequencesPatterns = polymers.map(polymer -> {
 
 			var sequencePatterns = new HashMap<>();
-			sequencePatterns.put(polymer.getId(), sequenceAnalyzer.getClumpFormingPatterns(polymer.getSequence(), patternSize, patternTimes, clumpSize));
+			sequencePatterns.put(polymer.getId(), polymerAnalyzer.getClumpFormingPatterns(polymer.getSequence(), patternSize, patternTimes, clumpSize));
 
 			return sequencePatterns;
 
@@ -107,56 +105,10 @@ public class AnalysisController {
 		List<String> sequences = polymers.stream().map(polymer -> polymer.getSequence()).collect(Collectors.toList());
 
 		try {
-			return sequenceAnalyzer.calculateLongestCommonSubsequence(sequences);
+			return polymerAnalyzer.calculateLongestCommonSubsequence(sequences);
 		} catch (IllegalArgumentException e) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
 		}
-
-	}
-
-	@GetMapping(DNA_REVERSE_COMPLEMENT_PATH)
-	Map<String, Object> getDNAReverseComplement(
-			@RequestParam(defaultValue = "") List<String> tags, 
-			@RequestParam(defaultValue = "") List<Long> ids, 
-			@RequestParam int page, 
-			@RequestParam int size) {
-
-		Pageable pageable = PageRequest.of(page, size, Sort.by("tag", "id"));
-		Page<Polymer> polymers = polymerDataHandler.findDNAs(tags, ids, pageable);
-
-		Page<Object> reverseComplements = polymers.map(polymer -> {
-
-			var reverseComplement = new HashMap<>();
-			reverseComplement.put(polymer.getId(), sequenceAnalyzer.getDNAReverseComplement(polymer.getSequence()));
-
-			return reverseComplement;
-
-		});
-
-		return formatPage(reverseComplements);
-
-	}
-
-	@GetMapping(RNA_REVERSE_COMPLEMENT_PATH)
-	Map<String, Object> getRNAReverseComplement(
-			@RequestParam(defaultValue = "") List<String> tags, 
-			@RequestParam(defaultValue = "") List<Long> ids, 
-			@RequestParam int page, 
-			@RequestParam int size) {
-
-		Pageable pageable = PageRequest.of(page, size, Sort.by("tag", "id"));
-		Page<Polymer> polymers = polymerDataHandler.findRNAs(tags, ids, pageable);
-
-		Page<Object> reverseComplements = polymers.map(polymer -> {
-
-			var reverseComplement = new HashMap<>();
-			reverseComplement.put(polymer.getId(), sequenceAnalyzer.getRNAReverseComplement(polymer.getSequence()));
-
-			return reverseComplement;
-
-		});
-
-		return formatPage(reverseComplements);
 
 	}
 

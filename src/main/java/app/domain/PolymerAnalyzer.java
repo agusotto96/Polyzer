@@ -12,7 +12,7 @@ import java.util.Set;
 import org.springframework.stereotype.Service;
 
 @Service
-public class SequenceAnalyzer {
+public class PolymerAnalyzer {
 
 	public Map<Character, Integer> getMonomerCount(String sequence) {
 
@@ -23,32 +23,6 @@ public class SequenceAnalyzer {
 		}
 
 		return monomerCount;
-
-	}
-
-	public String getDNAReverseComplement(String sequence) {
-
-		Map<Character, Character> complementaryMonomers = new HashMap<>(4);
-
-		complementaryMonomers.put('C', 'G');
-		complementaryMonomers.put('G', 'C');
-		complementaryMonomers.put('A', 'T');
-		complementaryMonomers.put('T', 'A');
-
-		return getReverseComplement(sequence, complementaryMonomers);
-
-	}
-
-	public String getRNAReverseComplement(String sequence) {
-
-		Map<Character, Character> complementaryMonomers = new HashMap<>(4);
-
-		complementaryMonomers.put('C', 'G');
-		complementaryMonomers.put('G', 'C');
-		complementaryMonomers.put('A', 'U');
-		complementaryMonomers.put('U', 'A');
-
-		return getReverseComplement(sequence, complementaryMonomers);
 
 	}
 
@@ -154,18 +128,6 @@ public class SequenceAnalyzer {
 		}
 
 		return Optional.empty();
-
-	}
-
-	private String getReverseComplement(String sequence, Map<Character, Character> complementaryMonomers) {
-
-		StringBuilder builder = new StringBuilder(sequence.length());
-
-		for (char nucleotide : sequence.toCharArray()) {
-			builder.append(complementaryMonomers.get(nucleotide));
-		}
-
-		return builder.reverse().toString();
 
 	}
 

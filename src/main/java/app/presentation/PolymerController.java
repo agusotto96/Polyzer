@@ -1,7 +1,6 @@
 package app.presentation;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.data.domain.Page;
@@ -13,7 +12,6 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -27,24 +25,15 @@ import app.data.PolymerDataHandler;
 @RequestMapping()
 class PolymerController {
 
-	private final String POLYMERS_PATH = "polymers";
 	private final String TAGS_PATH = "polymers/{type}/tags";
 	private final String SEQUENCES_PATH = "polymers/{type}/tags/{tag}/sequences";
-	private final String DNA_SEQUENCES_PATH = "polymers/DNA/tags/{tag}/sequences";
-	private final String RNA_SEQUENCES_PATH = "polymers/RNA/tags/{tag}/sequences";
-	private final String PROTEIN_SEQUENCES_PATH = "polymers/protein/tags/{tag}/sequences";
 	private final String SEQUENCE_PATH = "polymers/{type}/tags/{tag}/sequences/{id}";
 
 	private PolymerDataHandler polymerDataHandler;
-	
+
 	PolymerController(PolymerDataHandler polymerDataHandler) {
 		super();
 		this.polymerDataHandler = polymerDataHandler;
-	}
-
-	@GetMapping(POLYMERS_PATH)
-	List<String> findTypes() {
-		return polymerDataHandler.getTypes();
 	}
 
 	@GetMapping(TAGS_PATH)
@@ -72,51 +61,6 @@ class PolymerController {
 		}
 
 		return formatPage(sequences);
-
-	}
-
-	@PostMapping(DNA_SEQUENCES_PATH)
-	void saveDNAs(@PathVariable String tag, @RequestBody List<String> sequences) {
-
-		if (tag.isBlank()) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "invalid tag");
-		}
-
-		if (sequences.isEmpty()) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "at least one valid sequence must be provided");
-		}
-
-		polymerDataHandler.saveDNAs(tag, sequences);
-
-	}
-
-	@PostMapping(RNA_SEQUENCES_PATH)
-	void saveRNAs(@PathVariable String tag, @RequestBody List<String> sequences) {
-
-		if (tag.isBlank()) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "invalid tag");
-		}
-
-		if (sequences.isEmpty()) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "at least one valid sequence must be provided");
-		}
-
-		polymerDataHandler.saveRNAs(tag, sequences);
-
-	}
-
-	@PostMapping(PROTEIN_SEQUENCES_PATH)
-	void saveProteins(@PathVariable String tag, @RequestBody List<String> sequences) {
-
-		if (tag.isBlank()) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "invalid tag");
-		}
-
-		if (sequences.isEmpty()) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "at least one valid sequence must be provided");
-		}
-
-		polymerDataHandler.saveProteins(tag, sequences);
 
 	}
 
