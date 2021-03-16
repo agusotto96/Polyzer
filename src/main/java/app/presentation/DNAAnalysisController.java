@@ -23,11 +23,13 @@ public class DNAAnalysisController {
 
 	private DNADataHandler DNADataHandler;
 	private DNAAnalyzer DNAAnalyzer;
+	private ControllerHelper controllerHelper;
 
-	DNAAnalysisController(DNADataHandler DNADataHandler, DNAAnalyzer DNAAnalyzer) {
+	DNAAnalysisController(DNADataHandler DNADataHandler, DNAAnalyzer DNAAnalyzer, ControllerHelper controllerHelper) {
 		super();
 		this.DNADataHandler = DNADataHandler;
 		this.DNAAnalyzer = DNAAnalyzer;
+		this.controllerHelper = controllerHelper;
 	}
 
 	@GetMapping("reverse-complement")
@@ -49,19 +51,7 @@ public class DNAAnalysisController {
 
 		});
 
-		return formatPage(reverseComplements);
-
-	}
-
-	Map<String, Object> formatPage(Page<?> page) {
-
-		Map<String, Object> formattedPage = new HashMap<>(3);
-
-		formattedPage.put("content", page.getContent());
-		formattedPage.put("current-page", page.getNumber());
-		formattedPage.put("total-pages", page.getTotalPages());
-
-		return formattedPage;
+		return controllerHelper.formatPage(reverseComplements);
 
 	}
 

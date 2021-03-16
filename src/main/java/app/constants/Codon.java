@@ -12,6 +12,9 @@ public class Codon {
 
 	private Aminoacid aminoacid;
 	private Nucleotide nucleotide;
+	public Map<String, Character> start;
+	public Map<String, Character> body;
+	public Set<String> stop;
 
 	Codon(Aminoacid aminoacid, Nucleotide nucleotide) {
 		super();
@@ -21,10 +24,6 @@ public class Codon {
 		body();
 		stop();
 	}
-
-	public Map<String, Character> start;
-	public Map<String, Character> body;
-	public Set<String> stop;
 
 	private void start() {
 		start = new HashMap<>();

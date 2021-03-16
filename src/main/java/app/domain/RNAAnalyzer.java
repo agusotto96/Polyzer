@@ -1,9 +1,7 @@
 package app.domain;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -25,6 +23,10 @@ public class RNAAnalyzer {
 		this.nucleotide = nucleotide;
 		this.codon = codon;
 	}
+	
+	public String getReverseComplement(String sequence) {
+		return analyzerHelper.reverseSequence(getComplement(sequence));
+	}
 
 	public String getComplement(String sequence) {
 
@@ -39,11 +41,7 @@ public class RNAAnalyzer {
 
 	}
 
-	public String getReverseComplement(String sequence) {
-		return analyzerHelper.reverseSequence(getComplement(sequence));
-	}
-
-	public List<String> translateToProteins(String sequence) {
+	public Set<String> translateToProteins(String sequence) {
 
 		Set<String> proteins = new HashSet<>();
 
@@ -51,11 +49,11 @@ public class RNAAnalyzer {
 			proteins.addAll(translateReadingFrameToProteins(readingFrame));
 		}
 
-		return new ArrayList<>(proteins);
+		return proteins;
 
 	}
 
-	public List<String> getReadingFrames(String sequence) {
+	private Set<String> getReadingFrames(String sequence) {
 
 		Set<String> readingFrames = new HashSet<>(6);
 
@@ -73,13 +71,13 @@ public class RNAAnalyzer {
 			readingFrames.add(reverseComplement.substring(2));
 		}
 
-		return new ArrayList<>(readingFrames);
+		return readingFrames;
 
 	}
 
-	public List<String> translateReadingFrameToProteins(String sequence) {
+	private Set<String> translateReadingFrameToProteins(String sequence) {
 
-		List<String> proteins = new ArrayList<>();
+		Set<String> proteins = new HashSet<>();
 
 		StringBuilder protein = new StringBuilder();
 

@@ -12,18 +12,18 @@ import app.data.ProteinDataHandler;
 
 @RestController
 @RequestMapping()
-class ProteinController {
+class ProteinSequenceController {
 
-	private final String Protein_SEQUENCES_PATH = "polymers/Protein/tags/{tag}/sequences";
+	private final String PROTEIN_SEQUENCES_PATH = "polymers/protein/tags/{tag}/sequences";
 
 	private ProteinDataHandler proteinDataHandler;
 
-	ProteinController(ProteinDataHandler proteinDataHandler, ControllerHelper controllerHelper) {
+	ProteinSequenceController(ProteinDataHandler proteinDataHandler, ControllerHelper controllerHelper) {
 		super();
 		this.proteinDataHandler = proteinDataHandler;
 	}
 
-	@PostMapping(Protein_SEQUENCES_PATH)
+	@PostMapping(PROTEIN_SEQUENCES_PATH)
 	void saveProteins(@PathVariable String tag, @RequestBody List<String> sequences) {
 		proteinDataHandler.savePolymers(tag, sequences);
 	}

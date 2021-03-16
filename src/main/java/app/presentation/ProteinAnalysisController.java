@@ -23,11 +23,13 @@ public class ProteinAnalysisController {
 
 	private ProteinDataHandler proteinDataHandler;
 	private ProteinAnalyzer proteinAnalyzer;
+	private ControllerHelper controllerHelper;
 
-	ProteinAnalysisController(ProteinDataHandler polymerDataHandler, ProteinAnalyzer proteinAnalyzer) {
+	ProteinAnalysisController(ProteinDataHandler polymerDataHandler, ProteinAnalyzer proteinAnalyzer, ControllerHelper controllerHelper) {
 		super();
 		this.proteinDataHandler = polymerDataHandler;
 		this.proteinAnalyzer = proteinAnalyzer;
+		this.controllerHelper = controllerHelper;
 	}
 
 	@GetMapping("mass")
@@ -49,19 +51,30 @@ public class ProteinAnalysisController {
 
 		});
 
-		return formatPage(proteinsMass);
+		return controllerHelper.formatPage(proteinsMass);
 
 	}
+	
+	@GetMapping("reverse-translation")
+	Map<String, Object> reverseTranslation(
+			@RequestParam(defaultValue = "") List<String> tags, 
+			@RequestParam(defaultValue = "") List<Long> ids, 
+			@RequestParam int page, 
+			@RequestParam int size) {
 
-	Map<String, Object> formatPage(Page<?> page) {
+		Pageable pageable = PageRequest.of(page, size, Sort.by("tag", "id"));
+		Page<Polymer> proteins = proteinDataHandler.findPolymers(tags, ids, pageable);
 
-		Map<String, Object> formattedPage = new HashMap<>(3);
+		Page<Object> proteinsMass = proteins.map(protein -> {
 
-		formattedPage.put("content", page.getContent());
-		formattedPage.put("current-page", page.getNumber());
-		formattedPage.put("total-pages", page.getTotalPages());
+			var proteinMass = new HashMap<>();
+			proteinMass.put(protein.getId(), proteinAnalyzer.reverseTranslation(protein.getSequence()));
 
-		return formattedPage;
+			return proteinMass;
+
+		});
+
+		return controllerHelper.formatPage(proteinsMass);
 
 	}
 

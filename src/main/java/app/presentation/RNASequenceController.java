@@ -12,13 +12,13 @@ import app.data.RNADataHandler;
 
 @RestController
 @RequestMapping()
-class RNAController {
+class RNASequenceController {
 
 	private final String RNA_SEQUENCES_PATH = "polymers/RNA/tags/{tag}/sequences";
 
 	private RNADataHandler RNADataHandler;
 
-	RNAController(RNADataHandler RNADataHandler, ControllerHelper controllerHelper) {
+	RNASequenceController(RNADataHandler RNADataHandler, ControllerHelper controllerHelper) {
 		super();
 		this.RNADataHandler = RNADataHandler;
 	}

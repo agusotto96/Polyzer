@@ -12,13 +12,13 @@ import app.data.DNADataHandler;
 
 @RestController
 @RequestMapping()
-class DNAController {
+class DNASequenceController {
 
 	private final String DNA_SEQUENCES_PATH = "polymers/DNA/tags/{tag}/sequences";
 
 	private DNADataHandler DNADataHandler;
 
-	DNAController(DNADataHandler DNADataHandler, ControllerHelper controllerHelper) {
+	DNASequenceController(DNADataHandler DNADataHandler, ControllerHelper controllerHelper) {
 		super();
 		this.DNADataHandler = DNADataHandler;
 	}

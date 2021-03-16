@@ -23,7 +23,7 @@ import app.data.PolymerDataHandler;
 
 @RestController
 @RequestMapping()
-class PolymerController {
+class PolymerSequenceController {
 
 	private final String TYPES_PATH = "polymers";
 	private final String TAGS_PATH = "polymers/{type}/tags";
@@ -33,7 +33,7 @@ class PolymerController {
 	private PolymerDataHandler polymerDataHandler;
 	private ControllerHelper controllerHelper;
 
-	PolymerController(PolymerDataHandler polymerDataHandler, ControllerHelper controllerHelper) {
+	PolymerSequenceController(PolymerDataHandler polymerDataHandler, ControllerHelper controllerHelper) {
 		super();
 		this.polymerDataHandler = polymerDataHandler;
 		this.controllerHelper = controllerHelper;

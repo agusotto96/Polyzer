@@ -23,23 +23,21 @@ import app.data.PolymerDataHandler;
 import app.domain.PolymerAnalyzer;
 
 @RestController
-@RequestMapping()
+@RequestMapping("polymers/{type}/analyzes")
 public class PolymerAnalysisController {
-
-	private final String MONOMER_COUNT_PATH = "polymers/{type}/analyzes/monomer-count";
-	private final String CLUMP_FORMING_PATTERNS_PATH = "polymers/{type}/analyzes/clump-forming-patterns";
-	private final String LONGEST_COMMON_SUBSEQUENCE_PATH = "polymers/{type}/analyzes/longest-common-subsequence";
 
 	private PolymerDataHandler polymerDataHandler;
 	private PolymerAnalyzer polymerAnalyzer;
+	private ControllerHelper controllerHelper;
 
-	PolymerAnalysisController(PolymerDataHandler polymerDataHandler, PolymerAnalyzer sequenceAnalyzer) {
+	PolymerAnalysisController(PolymerDataHandler polymerDataHandler, PolymerAnalyzer sequenceAnalyzer, ControllerHelper controllerHelper) {
 		super();
 		this.polymerDataHandler = polymerDataHandler;
 		this.polymerAnalyzer = sequenceAnalyzer;
+		this.controllerHelper = controllerHelper;
 	}
 
-	@GetMapping(MONOMER_COUNT_PATH)
+	@GetMapping("monomer-count")
 	Map<String, Object> getMonomerCounts(
 			@PathVariable String type, 
 			@RequestParam(defaultValue = "") List<String> tags, 
@@ -59,11 +57,11 @@ public class PolymerAnalysisController {
 
 		});
 
-		return formatPage(counts);
+		return controllerHelper.formatPage(counts);
 
 	}
 
-	@GetMapping(CLUMP_FORMING_PATTERNS_PATH)
+	@GetMapping("clump-forming-patterns")
 	Map<String, Object> getClumpFormingPatterns(
 			@PathVariable String type, 
 			@RequestParam(defaultValue = "") List<String> tags, 
@@ -86,11 +84,11 @@ public class PolymerAnalysisController {
 
 		});
 
-		return formatPage(sequencesPatterns);
+		return controllerHelper.formatPage(sequencesPatterns);
 
 	}
 
-	@GetMapping(LONGEST_COMMON_SUBSEQUENCE_PATH)
+	@GetMapping("longest-common-subsequence")
 	Optional<String> calculateLongestCommonSubsequence(
 			@PathVariable String type, 
 			@RequestParam(defaultValue = "") List<String> tags, 
@@ -109,18 +107,6 @@ public class PolymerAnalysisController {
 		} catch (IllegalArgumentException e) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
 		}
-
-	}
-
-	Map<String, Object> formatPage(Page<?> page) {
-
-		Map<String, Object> formattedPage = new HashMap<>(3);
-
-		formattedPage.put("content", page.getContent());
-		formattedPage.put("current-page", page.getNumber());
-		formattedPage.put("total-pages", page.getTotalPages());
-
-		return formattedPage;
 
 	}
 

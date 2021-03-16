@@ -16,7 +16,7 @@ public abstract class BaseDataHandler {
 		super();
 		this.polymerRepository = polymerRepository;
 		this.polymerDataHandler = polymerDataHandler;
-		this.polymerDataHandler.types.add(getType());
+		this.polymerDataHandler.addType(getType());
 	}
 
 	abstract String getType();
@@ -37,7 +37,7 @@ public abstract class BaseDataHandler {
 
 	}
 
-	void validateSequence(String sequence, Set<Character> validMonomers) {
+	private void validateSequence(String sequence, Set<Character> validMonomers) {
 
 		if (sequence == null || sequence.isBlank()) {
 			throw new IllegalArgumentException("sequence cannot be empty");

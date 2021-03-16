@@ -12,7 +12,7 @@ public class PolymerDataHandler {
 
 	private PolymerRepository polymerRepository;
 
-	List<String> types = new ArrayList<>();
+	private List<String> types = new ArrayList<>();
 
 	PolymerDataHandler(PolymerRepository polymerRepository) {
 		super();
@@ -21,6 +21,10 @@ public class PolymerDataHandler {
 
 	public List<String> findTypes() {
 		return types;
+	}
+
+	public void addType(String type) {
+		this.types.add(type);
 	}
 
 	public Page<String> findTags(String type, Pageable pageable) {

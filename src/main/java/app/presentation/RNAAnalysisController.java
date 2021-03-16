@@ -23,11 +23,13 @@ public class RNAAnalysisController {
 
 	private RNADataHandler RNADataHandler;
 	private RNAAnalyzer RNAAnalyzer;
+	private ControllerHelper controllerHelper;
 
-	RNAAnalysisController(RNADataHandler RNADataHandler, RNAAnalyzer RNAAnalyzer) {
+	RNAAnalysisController(RNADataHandler RNADataHandler, RNAAnalyzer RNAAnalyzer, ControllerHelper controllerHelper) {
 		super();
 		this.RNADataHandler = RNADataHandler;
 		this.RNAAnalyzer = RNAAnalyzer;
+		this.controllerHelper = controllerHelper;
 	}
 
 	@GetMapping("longest-common-subsequence")
@@ -49,7 +51,7 @@ public class RNAAnalysisController {
 
 		});
 
-		return formatPage(reverseComplements);
+		return controllerHelper.formatPage(reverseComplements);
 
 	}
 
@@ -72,19 +74,7 @@ public class RNAAnalysisController {
 
 		});
 
-		return formatPage(translations);
-
-	}
-
-	Map<String, Object> formatPage(Page<?> page) {
-
-		Map<String, Object> formattedPage = new HashMap<>(3);
-
-		formattedPage.put("content", page.getContent());
-		formattedPage.put("current-page", page.getNumber());
-		formattedPage.put("total-pages", page.getTotalPages());
-
-		return formattedPage;
+		return controllerHelper.formatPage(translations);
 
 	}
 
