@@ -18,10 +18,8 @@ import app.data.RNADataHandler;
 import app.domain.RNAAnalyzer;
 
 @RestController
-@RequestMapping()
+@RequestMapping("polymers/RNA/analyzes")
 public class RNAAnalysisController {
-
-	private final String RNA_REVERSE_COMPLEMENT_PATH = "polymers/RNA/analyzes/longest-common-subsequence";
 
 	private RNADataHandler RNADataHandler;
 	private RNAAnalyzer RNAAnalyzer;
@@ -32,7 +30,7 @@ public class RNAAnalysisController {
 		this.RNAAnalyzer = RNAAnalyzer;
 	}
 
-	@GetMapping(RNA_REVERSE_COMPLEMENT_PATH)
+	@GetMapping("longest-common-subsequence")
 	Map<String, Object> getRNAReverseComplement(
 			@RequestParam(defaultValue = "") List<String> tags, 
 			@RequestParam(defaultValue = "") List<Long> ids, 
@@ -40,18 +38,41 @@ public class RNAAnalysisController {
 			@RequestParam int size) {
 
 		Pageable pageable = PageRequest.of(page, size, Sort.by("tag", "id"));
-		Page<Polymer> polymers = RNADataHandler.findRNAs(tags, ids, pageable);
+		Page<Polymer> polymers = RNADataHandler.findPolymers(tags, ids, pageable);
 
 		Page<Object> reverseComplements = polymers.map(polymer -> {
 
 			var reverseComplement = new HashMap<>();
-			reverseComplement.put(polymer.getId(), RNAAnalyzer.getRNAReverseComplement(polymer.getSequence()));
+			reverseComplement.put(polymer.getId(), RNAAnalyzer.getReverseComplement(polymer.getSequence()));
 
 			return reverseComplement;
 
 		});
 
 		return formatPage(reverseComplements);
+
+	}
+
+	@GetMapping("translate")
+	Map<String, Object> getTranslation(
+			@RequestParam(defaultValue = "") List<String> tags, 
+			@RequestParam(defaultValue = "") List<Long> ids, 
+			@RequestParam int page, 
+			@RequestParam int size) {
+
+		Pageable pageable = PageRequest.of(page, size, Sort.by("tag", "id"));
+		Page<Polymer> RNAs = RNADataHandler.findPolymers(tags, ids, pageable);
+
+		Page<Object> translations = RNAs.map(RNA -> {
+
+			var translation = new HashMap<>();
+			translation.put(RNA.getId(), RNAAnalyzer.translateToProteins(RNA.getSequence()));
+
+			return translation;
+
+		});
+
+		return formatPage(translations);
 
 	}
 

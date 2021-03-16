@@ -1,5 +1,6 @@
 package app.data;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -11,9 +12,15 @@ public class PolymerDataHandler {
 
 	private PolymerRepository polymerRepository;
 
+	List<String> types = new ArrayList<>();
+
 	PolymerDataHandler(PolymerRepository polymerRepository) {
 		super();
 		this.polymerRepository = polymerRepository;
+	}
+
+	public List<String> findTypes() {
+		return types;
 	}
 
 	public Page<String> findTags(String type, Pageable pageable) {

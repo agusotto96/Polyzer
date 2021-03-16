@@ -5,32 +5,35 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
+import app.constants.Nucleotide;
+
 @Service
 public class DNAAnalyzer {
 
-	public String getDNAReverseComplement(String sequence) {
+	private AnalyzerHelper analyzerHelper;
+	private Nucleotide nucleotide;
+
+	DNAAnalyzer(AnalyzerHelper analyzerHelper, Nucleotide nucleotide) {
+		super();
+		this.analyzerHelper = analyzerHelper;
+		this.nucleotide = nucleotide;
+	}
+
+	public String getComplement(String sequence) {
 
 		Map<Character, Character> complementaryMonomers = new HashMap<>(4);
 
-		complementaryMonomers.put('C', 'G');
-		complementaryMonomers.put('G', 'C');
-		complementaryMonomers.put('A', 'T');
-		complementaryMonomers.put('T', 'A');
+		complementaryMonomers.put(nucleotide.CYTOSINE, nucleotide.GUANINE);
+		complementaryMonomers.put(nucleotide.GUANINE, nucleotide.CYTOSINE);
+		complementaryMonomers.put(nucleotide.ADENINE, nucleotide.THYMINE);
+		complementaryMonomers.put(nucleotide.THYMINE, nucleotide.ADENINE);
 
-		return getReverseComplement(sequence, complementaryMonomers);
+		return analyzerHelper.replaceMonomers(sequence, complementaryMonomers).toString();
 
 	}
 
-	private String getReverseComplement(String sequence, Map<Character, Character> complementaryMonomers) {
-
-		StringBuilder builder = new StringBuilder(sequence.length());
-
-		for (char nucleotide : sequence.toCharArray()) {
-			builder.append(complementaryMonomers.get(nucleotide));
-		}
-
-		return builder.reverse().toString();
-
+	public String getReverseComplement(String sequence) {
+		return analyzerHelper.reverseSequence(getComplement(sequence));
 	}
 
 }

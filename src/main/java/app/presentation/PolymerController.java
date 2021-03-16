@@ -1,6 +1,6 @@
 package app.presentation;
 
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.data.domain.Page;
@@ -25,15 +25,23 @@ import app.data.PolymerDataHandler;
 @RequestMapping()
 class PolymerController {
 
+	private final String TYPES_PATH = "polymers";
 	private final String TAGS_PATH = "polymers/{type}/tags";
 	private final String SEQUENCES_PATH = "polymers/{type}/tags/{tag}/sequences";
 	private final String SEQUENCE_PATH = "polymers/{type}/tags/{tag}/sequences/{id}";
 
 	private PolymerDataHandler polymerDataHandler;
+	private ControllerHelper controllerHelper;
 
-	PolymerController(PolymerDataHandler polymerDataHandler) {
+	PolymerController(PolymerDataHandler polymerDataHandler, ControllerHelper controllerHelper) {
 		super();
 		this.polymerDataHandler = polymerDataHandler;
+		this.controllerHelper = controllerHelper;
+	}
+
+	@GetMapping(TYPES_PATH)
+	List<String> findTypes() {
+		return polymerDataHandler.findTypes();
 	}
 
 	@GetMapping(TAGS_PATH)
@@ -46,7 +54,7 @@ class PolymerController {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "tags not found");
 		}
 
-		return formatPage(tags);
+		return controllerHelper.formatPage(tags);
 
 	}
 
@@ -60,7 +68,7 @@ class PolymerController {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "sequences not found");
 		}
 
-		return formatPage(sequences);
+		return controllerHelper.formatPage(sequences);
 
 	}
 
@@ -92,18 +100,6 @@ class PolymerController {
 	@DeleteMapping(SEQUENCE_PATH)
 	void deleteSequences(@PathVariable String type, @PathVariable String tag, @PathVariable long id) {
 		polymerDataHandler.deletePolymers(type, tag, id);
-	}
-
-	Map<String, Object> formatPage(Page<?> page) {
-
-		Map<String, Object> formattedPage = new HashMap<>(3);
-
-		formattedPage.put("content", page.getContent());
-		formattedPage.put("current-page", page.getNumber());
-		formattedPage.put("total-pages", page.getTotalPages());
-
-		return formattedPage;
-
 	}
 
 }

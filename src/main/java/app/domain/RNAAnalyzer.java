@@ -1,35 +1,126 @@
 package app.domain;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.stereotype.Service;
+
+import app.constants.Codon;
+import app.constants.Nucleotide;
 
 @Service
 public class RNAAnalyzer {
 
-	public String getRNAReverseComplement(String sequence) {
+	private AnalyzerHelper analyzerHelper;
+	private Nucleotide nucleotide;
+	private Codon codon;
+
+	RNAAnalyzer(AnalyzerHelper analyzerHelper, Nucleotide nucleotide, Codon codon) {
+		super();
+		this.analyzerHelper = analyzerHelper;
+		this.nucleotide = nucleotide;
+		this.codon = codon;
+	}
+
+	public String getComplement(String sequence) {
 
 		Map<Character, Character> complementaryMonomers = new HashMap<>(4);
 
-		complementaryMonomers.put('C', 'G');
-		complementaryMonomers.put('G', 'C');
-		complementaryMonomers.put('A', 'U');
-		complementaryMonomers.put('U', 'A');
+		complementaryMonomers.put(nucleotide.CYTOSINE, nucleotide.GUANINE);
+		complementaryMonomers.put(nucleotide.GUANINE, nucleotide.CYTOSINE);
+		complementaryMonomers.put(nucleotide.ADENINE, nucleotide.URACIL);
+		complementaryMonomers.put(nucleotide.URACIL, nucleotide.ADENINE);
 
-		return getReverseComplement(sequence, complementaryMonomers);
+		return analyzerHelper.replaceMonomers(sequence, complementaryMonomers).toString();
 
 	}
 
-	private String getReverseComplement(String sequence, Map<Character, Character> complementaryMonomers) {
+	public String getReverseComplement(String sequence) {
+		return analyzerHelper.reverseSequence(getComplement(sequence));
+	}
 
-		StringBuilder builder = new StringBuilder(sequence.length());
+	public List<String> translateToProteins(String sequence) {
 
-		for (char nucleotide : sequence.toCharArray()) {
-			builder.append(complementaryMonomers.get(nucleotide));
+		Set<String> proteins = new HashSet<>();
+
+		for (String readingFrame : getReadingFrames(sequence)) {
+			proteins.addAll(translateReadingFrameToProteins(readingFrame));
 		}
 
-		return builder.reverse().toString();
+		return new ArrayList<>(proteins);
+
+	}
+
+	public List<String> getReadingFrames(String sequence) {
+
+		Set<String> readingFrames = new HashSet<>(6);
+
+		String reverseComplement = getReverseComplement(sequence);
+		readingFrames.add(sequence);
+		readingFrames.add(reverseComplement);
+
+		if (sequence.length() >= 2) {
+			readingFrames.add(sequence.substring(1));
+			readingFrames.add(reverseComplement.substring(1));
+		}
+
+		if (sequence.length() >= 3) {
+			readingFrames.add(sequence.substring(2));
+			readingFrames.add(reverseComplement.substring(2));
+		}
+
+		return new ArrayList<>(readingFrames);
+
+	}
+
+	public List<String> translateReadingFrameToProteins(String sequence) {
+
+		List<String> proteins = new ArrayList<>();
+
+		StringBuilder protein = new StringBuilder();
+
+		boolean proteinHasStarted = false;
+
+		for (int i = 0; i <= sequence.length() - 3; i += 3) {
+
+			String triplet = sequence.substring(i, i + 3);
+
+			if (!proteinHasStarted) {
+
+				if (codon.start.containsKey(triplet)) {
+
+					protein.append(codon.start.get(triplet));
+					proteinHasStarted = true;
+
+				}
+
+			} else {
+
+				if (codon.start.containsKey(triplet)) {
+
+					protein.append(codon.start.get(triplet));
+
+				} else if (codon.body.containsKey(triplet)) {
+
+					protein.append(codon.body.get(triplet));
+
+				} else if (codon.stop.contains(triplet)) {
+
+					proteins.add(protein.toString());
+					protein = new StringBuilder();
+					proteinHasStarted = false;
+
+				}
+
+			}
+
+		}
+
+		return proteins;
 
 	}
 

@@ -18,10 +18,8 @@ import app.data.Polymer;
 import app.domain.DNAAnalyzer;
 
 @RestController
-@RequestMapping()
+@RequestMapping("polymers/DNA/analyzes")
 public class DNAAnalysisController {
-
-	private final String DNA_REVERSE_COMPLEMENT_PATH = "polymers/DNA/analyzes/reverse-complement";
 
 	private DNADataHandler DNADataHandler;
 	private DNAAnalyzer DNAAnalyzer;
@@ -32,7 +30,7 @@ public class DNAAnalysisController {
 		this.DNAAnalyzer = DNAAnalyzer;
 	}
 
-	@GetMapping(DNA_REVERSE_COMPLEMENT_PATH)
+	@GetMapping("reverse-complement")
 	Map<String, Object> getDNAReverseComplement(
 			@RequestParam(defaultValue = "") List<String> tags, 
 			@RequestParam(defaultValue = "") List<Long> ids, 
@@ -40,12 +38,12 @@ public class DNAAnalysisController {
 			@RequestParam int size) {
 
 		Pageable pageable = PageRequest.of(page, size, Sort.by("tag", "id"));
-		Page<Polymer> polymers = DNADataHandler.findDNAs(tags, ids, pageable);
+		Page<Polymer> polymers = DNADataHandler.findPolymers(tags, ids, pageable);
 
 		Page<Object> reverseComplements = polymers.map(polymer -> {
 
 			var reverseComplement = new HashMap<>();
-			reverseComplement.put(polymer.getId(), DNAAnalyzer.getDNAReverseComplement(polymer.getSequence()));
+			reverseComplement.put(polymer.getId(), DNAAnalyzer.getReverseComplement(polymer.getSequence()));
 
 			return reverseComplement;
 

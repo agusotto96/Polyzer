@@ -18,10 +18,8 @@ import app.data.ProteinDataHandler;
 import app.domain.ProteinAnalyzer;
 
 @RestController
-@RequestMapping()
+@RequestMapping("polymers/protein/analyzes")
 public class ProteinAnalysisController {
-
-	private final String PROTEIN_MASS_PATH = "polymers/protein/analyzes/mass";
 
 	private ProteinDataHandler proteinDataHandler;
 	private ProteinAnalyzer proteinAnalyzer;
@@ -32,7 +30,7 @@ public class ProteinAnalysisController {
 		this.proteinAnalyzer = proteinAnalyzer;
 	}
 
-	@GetMapping(PROTEIN_MASS_PATH)
+	@GetMapping("mass")
 	Map<String, Object> calculateProteinMass(
 			@RequestParam(defaultValue = "") List<String> tags, 
 			@RequestParam(defaultValue = "") List<Long> ids, 
@@ -40,12 +38,12 @@ public class ProteinAnalysisController {
 			@RequestParam int size) {
 
 		Pageable pageable = PageRequest.of(page, size, Sort.by("tag", "id"));
-		Page<Polymer> proteins = proteinDataHandler.findProteins(tags, ids, pageable);
+		Page<Polymer> proteins = proteinDataHandler.findPolymers(tags, ids, pageable);
 
 		Page<Object> proteinsMass = proteins.map(protein -> {
 
 			var proteinMass = new HashMap<>();
-			proteinMass.put(protein.getId(), proteinAnalyzer.calculateProteinMass(protein.getSequence()));
+			proteinMass.put(protein.getId(), proteinAnalyzer.calculateMass(protein.getSequence()));
 
 			return proteinMass;
 
